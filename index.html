@@ -1675,7 +1675,7 @@ function buildPayload(book) {
     id: book.id, title: book.title, author: book.author,
     time: book.time, length: book.length, spice: book.spice,
     stars: book.stars, mainCP: book.mainCP, attackType: book.attackType,
-    synopsis: book.synopsis, review: book.review, quotes: book.quotes,
+    synopsis: book.synopsis, review: book.review, quote: book.quote,
     types: typesByGroup,
   };
 }
@@ -1755,7 +1755,7 @@ function handleSave() {
     attackType: document.getElementById('f-atk').value.trim(),
     synopsis:   document.getElementById('f-synopsis').value.trim(),
     review:     document.getElementById('f-review').value.trim(),
-    quotes:     document.getElementById('f-quote').value.trim(),
+    quote:      document.getElementById('f-quote').value.trim(),
     types:      [...formSelectedTypes],
   };
 
