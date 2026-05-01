@@ -1000,8 +1000,8 @@ function chipHTML(tag, size='sm', removable=false) {
   }</span>`;
 }
 
-function badgeHTML(val, map) {
-  const m = map[val] || {};
+function badgeHTML(val, map, defaultStyle) {
+  const m = map[val] || defaultStyle || {};
   return `<span class="badge" style="background:${m.bg||'#eee'};color:${m.text||'#666'};border-color:${m.border||'#ccc'}">${esc(val)}</span>`;
 }
 
@@ -1343,7 +1343,7 @@ function renderBookCardHTML(b, featured=false) {
       ${accentBarHTML(b)}
       <div class="card-body${featured?' lg':''}">
         <div class="card-badges">
-          ${badgeHTML(b.time, {'古代':{bg:'#76614F',text:'#fff',border:'#76614F'},'現代':{bg:'#76614F',text:'#fff',border:'#76614F'},'未來':{bg:'#76614F',text:'#fff',border:'#76614F'},'架空':{bg:'#76614F',text:'#fff',border:'#76614F'},'其他':{bg:'#76614F',text:'#fff',border:'#76614F'}})}
+          ${badgeHTML(b.time, {'古代':{bg:'#76614F',text:'#fff',border:'#76614F'},'現代':{bg:'#76614F',text:'#fff',border:'#76614F'},'未來':{bg:'#76614F',text:'#fff',border:'#76614F'},'架空':{bg:'#76614F',text:'#fff',border:'#76614F'},'其他':{bg:'#76614F',text:'#fff',border:'#76614F'}}, {bg:'#76614F',text:'#fff',border:'#76614F'})}
           ${badgeHTML(b.length,LEN_MAP)}
           ${badgeHTML(b.spice,SPICE_MAP)}
         </div>
@@ -1442,7 +1442,7 @@ function renderDetailHTML(b) {
   return `
     <div class="modal-header">
       <div class="card-badges">
-        ${badgeHTML(b.time, {'古代':{bg:'#76614F',text:'#fff',border:'#76614F'},'現代':{bg:'#76614F',text:'#fff',border:'#76614F'},'未來':{bg:'#76614F',text:'#fff',border:'#76614F'},'架空':{bg:'#76614F',text:'#fff',border:'#76614F'},'其他':{bg:'#76614F',text:'#fff',border:'#76614F'}})}
+        ${badgeHTML(b.time, {'古代':{bg:'#76614F',text:'#fff',border:'#76614F'},'現代':{bg:'#76614F',text:'#fff',border:'#76614F'},'未來':{bg:'#76614F',text:'#fff',border:'#76614F'},'架空':{bg:'#76614F',text:'#fff',border:'#76614F'},'其他':{bg:'#76614F',text:'#fff',border:'#76614F'}}, {bg:'#76614F',text:'#fff',border:'#76614F'})}
         ${badgeHTML(b.length,LEN_MAP)}
         ${badgeHTML(b.spice,SPICE_MAP)}
       </div>
