@@ -581,6 +581,21 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .form-inp, .form-sel, .form-ta{ font-size: 15px; }
 }
 
+/* ─── DESKTOP MODAL ─── */
+@media (min-width: 768px) {
+  .modal{
+    width:680px;
+    left:50%;
+    bottom:auto;
+    top:50%;
+    transform:translate(-50%,-50%);
+    height:auto;
+    max-height:85vh;
+    border-radius:20px;
+  }
+  .modal-drag-handle{ display:none; }
+}
+
 /* ─── TOAST ─── */
 #toast{
   position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);
