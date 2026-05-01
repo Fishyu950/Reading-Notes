@@ -1303,6 +1303,10 @@ function renderBookCardHTML(b, featured=false) {
 /* ═══════════ MODAL ═══════════ */
 let _bodyScrollY = 0;
 let _modalHistoryPushed = false;
+let _formHistoryPushed = false;
+let _formFromModal = false;
+let _savedModalBookId = null;
+
 function openModal(id) {
   const b = books.find(x=>x.id===id);
   if (!b) return;
@@ -1319,7 +1323,21 @@ function openModal(id) {
   history.pushState({modal:true}, '');
   _modalHistoryPushed = true;
 }
-function closeModal() {
+function _openModalVisual(id) {
+  const b = books.find(x=>x.id===id);
+  if (!b) return;
+  currentModalBookId = id;
+  document.getElementById('modal-content').innerHTML = renderDetailHTML(b);
+  document.getElementById('modal-box').style.transform = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_bodyScrollY}px`;
+  document.body.style.width = '100%';
+  document.querySelector('.hdr').style.display = 'none';
+  _modalHistoryPushed = true;
+}
+function _closeModalVisual() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
   document.body.style.position = '';
@@ -1327,16 +1345,31 @@ function closeModal() {
   document.body.style.width = '';
   document.querySelector('.hdr').style.display = '';
   window.scrollTo(0, _bodyScrollY);
+}
+function closeModal() {
+  _closeModalVisual();
   if (_modalHistoryPushed) {
     _modalHistoryPushed = false;
     history.back();
   }
 }
 window.addEventListener('popstate', () => {
-  const overlay = document.getElementById('modal-overlay');
-  if (overlay.classList.contains('open')) {
+  const formView = document.getElementById('view-form');
+  const overlay  = document.getElementById('modal-overlay');
+  const isFormOpen  = !formView.classList.contains('hide');
+  const isModalOpen = overlay.classList.contains('open');
+
+  if (isFormOpen) {
+    _formHistoryPushed = false;
+    switchView('list');
+    window.scrollTo(0, 0);
+    if (_formFromModal && _savedModalBookId) {
+      _formFromModal = false;
+      _openModalVisual(_savedModalBookId);
+    }
+  } else if (isModalOpen) {
     _modalHistoryPushed = false;
-    closeModal();
+    _closeModalVisual();
   }
 });
 
@@ -1426,9 +1459,11 @@ function renderExportCard(b) {
 }
 
 /* ═══════════ FORM ═══════════ */
-function showForm(book=null) {
+function showForm(book=null, fromModal=false) {
   editingId = book ? book.id : null;
   formSelectedTypes = book ? [...book.types] : [];
+  _formFromModal = fromModal;
+  if (fromModal) _savedModalBookId = currentModalBookId;
 
 
   document.getElementById('form-title').innerHTML = book ? '<span class="material-icons-outlined">edit</span> 編輯書單' : '<span class="material-icons-outlined">add</span> 新增書單';
@@ -1455,6 +1490,8 @@ function showForm(book=null) {
 
   switchView('form');
   window.scrollTo(0, 0);
+  history.pushState({form:true}, '');
+  _formHistoryPushed = true;
 }
 
 /* Custom selector helpers */
@@ -1832,8 +1869,13 @@ function handleSave() {
   saveBooks();
   setSaveState('ok');
   setTimeout(() => {
-    switchView('list');
     renderStats(); renderGrid(); renderFilters();
+    if (_formHistoryPushed) {
+      _formFromModal = false;
+      history.back();
+    } else {
+      switchView('list');
+    }
   }, 900);
 
   if (editingId) { if (book.notionId) syncUpdate(book); else syncCreate(book); }
@@ -1879,8 +1921,12 @@ function switchView(v) {
 
 /* ═══════════ INIT / EVENTS ═══════════ */
 document.getElementById('btn-new').addEventListener('click',()=>showForm());
-document.getElementById('btn-back').addEventListener('click',()=>switchView('list'));
-document.getElementById('btn-cancel').addEventListener('click',()=>switchView('list'));
+document.getElementById('btn-back').addEventListener('click',()=>{
+  if (_formHistoryPushed) history.back(); else switchView('list');
+});
+document.getElementById('btn-cancel').addEventListener('click',()=>{
+  if (_formHistoryPushed) history.back(); else switchView('list');
+});
 document.getElementById('btn-save').addEventListener('click',handleSave);
 document.getElementById('f-stars').addEventListener('input',updateStarsPreview);
 document.getElementById('search-inp').addEventListener('input',e=>{
@@ -1896,7 +1942,7 @@ document.getElementById('modal-overlay').addEventListener('click',e=>{
 });
 document.getElementById('modal-btn-edit').addEventListener('click',()=>{
   const b=books.find(x=>x.id===currentModalBookId);
-  if (b){closeModal();showForm(b);}
+  if (b){_closeModalVisual();showForm(b,true);}
 });
 document.getElementById('modal-btn-export').addEventListener('click',handleExport);
 document.getElementById('modal-btn-delete').addEventListener('click',()=>{
