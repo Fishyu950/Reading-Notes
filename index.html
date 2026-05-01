@@ -135,13 +135,13 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .pg-btn{
   display:inline-flex;align-items:center;gap:3px;
   font-size:13px;padding:7px 15px;border-radius:10px;cursor:pointer;
-  font-family:inherit;border:1px solid var(--borderMd);background:var(--card);
-  color:var(--textMid);transition:all .12s;user-select:none;-webkit-user-select:none;
+  font-family:inherit;border:none;background:#7F8162;
+  color:#fff;transition:all .12s;user-select:none;-webkit-user-select:none;
   -webkit-tap-highlight-color:transparent;
 }
-.pg-btn:hover:not(:disabled){background:var(--surface);border-color:var(--gold);color:var(--gold)}
+.pg-btn:hover:not(:disabled){background:#6e7055}
 .pg-btn:active:not(:disabled){transform:scale(.94)}
-.pg-btn:disabled{opacity:.35;cursor:not-allowed}
+.pg-btn:disabled{opacity:.38;cursor:not-allowed}
 .pg-info{font-size:13px;color:var(--textSoft);letter-spacing:.5px;min-width:72px;text-align:center}
 
 /* ─── TAG CHIP ─── */
@@ -159,7 +159,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .chip:active{transform:scale(.88)}
 
 /* ─── CARD GRID ─── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .card-wrap{cursor:pointer;border-radius:14px;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .card-wrap:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(60,40,10,.1)}
 .card-wrap.featured{grid-column:span 2}
@@ -180,6 +180,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .card-atk{font-size:11px;color:var(--textFaint);line-height:1.8;margin-bottom:0}
 .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
 .card-more{font-size:11px;color:var(--textFaint);align-self:center}
+.card-synopsis{font-size:12px;color:var(--textSoft);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.5}
 
 /* ─── STARS ─── */
 .stars{display:flex;gap:2px;align-items:center;margin-bottom:0}
@@ -693,7 +694,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
         <div class="settings-wrap" id="btn-settings">
           <button class="btn btn-outline settings-gear-btn" onclick="toggleSettingsMenu(event)"><span class="material-icons-outlined">settings</span></button>
           <div class="settings-dropdown" id="settings-dropdown">
-            <button class="settings-item" id="btn-sync-notion" onclick="closeSettingsMenu()"><span class="settings-item-sync">⟳</span> 從 Notion 同步</button>
+            <button class="settings-item" id="btn-sync-notion" onclick="closeSettingsMenu()"><span class="material-icons-outlined">sync</span> 從 Notion 同步</button>
             <button class="settings-item" onclick="exportData();closeSettingsMenu()"><span class="material-icons-outlined">upload</span> 匯出</button>
             <button class="settings-item" onclick="document.getElementById('import-json-input').click();closeSettingsMenu()"><span class="material-icons-outlined">download</span> 匯入</button>
           </div>
@@ -1231,11 +1232,16 @@ function openFilterSheet() {
       renderFilters(); renderGrid(); renderFilterSheetBody();
     });
     if (sh) {
-      let _sy = 0;
-      sh.addEventListener('touchstart', e => { _sy = e.touches[0].clientY; sh.style.transition='none'; }, {passive:true});
+      let _sy = 0, _atTop = true;
+      const shBody = document.getElementById('filter-sheet-body');
+      sh.addEventListener('touchstart', e => {
+        _sy = e.touches[0].clientY;
+        _atTop = !shBody || shBody.scrollTop === 0;
+        sh.style.transition = 'none';
+      }, {passive:true});
       sh.addEventListener('touchmove', e => {
         const dy = e.touches[0].clientY - _sy;
-        if (dy > 0) {
+        if (dy > 0 && _atTop) {
           e.preventDefault();
           sh.style.transform = `translateY(${dy}px)`;
         }
@@ -1243,7 +1249,7 @@ function openFilterSheet() {
       sh.addEventListener('touchend', e => {
         const dy = e.changedTouches[0].clientY - _sy;
         sh.style.transition = '';
-        if (dy > 80) { sh.style.transform = ''; closeFilterSheet(); }
+        if (dy > 80 && _atTop) { sh.style.transform = ''; closeFilterSheet(); }
         else sh.style.transform = '';
       });
     }
@@ -1396,6 +1402,7 @@ function renderBookCardHTML(b, featured=false) {
         ${b.mainCP?`<div class="card-cp" style="margin-top:8px"><span class="material-icons-outlined">local_offer</span> ${esc(b.mainCP)}</div>`:''}
         ${b.attackType?`<div class="card-atk">${esc(b.attackType)}</div>`:''}
         ${featured&&b.synopsis?`<div style="margin:4px 0 10px">${textBlockHTML(b.synopsis.split('\n')[0],'var(--borderMd)')}</div>`:''}
+        ${!featured&&b.synopsis?`<div class="card-synopsis">${esc(b.synopsis.split('\n')[0])}</div>`:''}
         ${botShow.length?`<div class="card-tags">
           ${botShow.map(t=>chipHTML(t,'xs')).join('')}
           ${botExtra?`<span class="card-more">+${botExtra}</span>`:''}
