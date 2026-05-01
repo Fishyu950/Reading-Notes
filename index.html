@@ -185,14 +185,12 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .modal{
   position:fixed;bottom:0;left:0;right:0;height:92vh;
   background:var(--card);border:1px solid var(--borderMd);border-radius:20px 20px 0 0;
-  display:flex;flex-direction:column;overflow:hidden;
+  overflow-y:scroll;-webkit-overflow-scrolling:touch;
   box-shadow:0 24px 60px rgba(20,12,4,.22);
 }
 .modal-topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:11px 18px 11px 26px;border-bottom:1px solid var(--border);
-  flex-shrink:0;background:rgba(254,254,252,.96);
-  backdrop-filter:blur(6px);z-index:10;
 }
 .modal-topbar-label{font-size:13px;color:var(--textSoft);letter-spacing:1.5px}
 .modal-actions{display:flex;gap:7px;align-items:center}
@@ -201,7 +199,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   padding:22px 28px 18px;border-bottom:1px solid var(--border);
 }
 .modal-body{padding:18px 28px}
-#modal-content{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;min-height:0}
+#modal-content{}
 
 /* ─── META BOXES ─── */
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -605,7 +603,17 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .flt-clear-btn{font-size:13px;color:var(--textSoft);border:1px solid var(--border);background:none;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:20px;transition:all .12s;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .flt-clear-btn:active{background:var(--surface)}
 /* ─── MODAL DRAG HANDLE ─── */
-.modal-drag-handle{display:block;width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 6px;flex-shrink:0}
+.modal-drag-handle{display:block;width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 6px}
+/* ─── SCROLL TO TOP ─── */
+#scroll-to-top{
+  position:fixed;bottom:80px;right:20px;
+  width:44px;height:44px;border-radius:50%;
+  background:#7F8162;color:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  z-index:100;-webkit-tap-highlight-color:transparent;
+}
+#scroll-to-top.visible{opacity:1;pointer-events:auto}
 </style>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 <style>.material-icons-outlined{font-size:18px;vertical-align:middle;line-height:1;user-select:none}.empty-icon .material-icons-outlined{font-size:48px}.search-icon .material-icons-outlined{font-size:20px}</style>
@@ -749,6 +757,9 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
     <div id="modal-content"></div>
   </div>
 </div>
+
+<!-- SCROLL TO TOP -->
+<button id="scroll-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="material-icons-outlined">arrow_upward</span></button>
 
 <!-- HIDDEN EXPORT CARD -->
 <div id="export-card-container">
@@ -1892,7 +1903,7 @@ document.getElementById('modal-btn-delete').addEventListener('click',()=>{
 const _mbox = document.getElementById('modal-box');
 let _tsY = 0, _dragEnabled = false;
 _mbox.addEventListener('touchstart', e => {
-  if (e.target.closest('.modal-body')) { _dragEnabled = false; return; }
+  if (_mbox.scrollTop > 0) { _dragEnabled = false; return; }
   _dragEnabled = true;
   _tsY = e.touches[0].clientY;
   _mbox.style.transition = 'none';
@@ -1922,6 +1933,10 @@ _mbox.addEventListener('touchend', e => {
     setTimeout(() => { _mbox.style.transition = ''; }, 300);
   }
 });
+// scroll to top button visibility
+window.addEventListener('scroll', () => {
+  document.getElementById('scroll-to-top').classList.toggle('visible', window.scrollY > 300);
+}, {passive:true});
 // close dropdown on outside click
 document.addEventListener('click',()=>{
   document.querySelectorAll('.dropdown-menu.open').forEach(m=>m.classList.remove('open'));
