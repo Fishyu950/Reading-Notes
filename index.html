@@ -130,6 +130,19 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .fchip.active{font-weight:600}
 .fchip:active{transform:scale(.9)}
 .result-count{font-size:12px;color:var(--textFaint);margin-bottom:14px;letter-spacing:.5px}
+/* ─── PAGINATION ─── */
+.pagination-bar{display:flex;align-items:center;justify-content:center;gap:14px;padding:30px 0 10px}
+.pg-btn{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:13px;padding:7px 15px;border-radius:10px;cursor:pointer;
+  font-family:inherit;border:1px solid var(--borderMd);background:var(--card);
+  color:var(--textMid);transition:all .12s;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.pg-btn:hover:not(:disabled){background:var(--surface);border-color:var(--gold);color:var(--gold)}
+.pg-btn:active:not(:disabled){transform:scale(.94)}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed}
+.pg-info{font-size:13px;color:var(--textSoft);letter-spacing:.5px;min-width:72px;text-align:center}
 
 /* ─── TAG CHIP ─── */
 .chip{
@@ -719,6 +732,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
       <div class="empty-icon"><span class="material-icons-outlined">library_books</span></div>
       <p class="empty-txt">找不到符合條件的書單</p>
     </div>
+    <div class="pagination-bar" id="pagination-bar"></div>
   </div>
 
   <!-- FORM VIEW -->
@@ -954,6 +968,8 @@ let books = [
 
 /* ─── filter state ─── */
 let fltSpice='', fltLength='', fltTime='', fltTags={}, searchQ='';
+let currentPage = 1;
+const BOOKS_PER_PAGE = 16;
 let editingId = null;
 let formSelectedTypes = [];
 let currentModalBookId = null;
@@ -1034,11 +1050,7 @@ function getFiltered() {
   return books.filter(b => {
     if (fltSpice  && b.spice !==fltSpice)  return false;
     if (fltLength && b.length!==fltLength) return false;
-    if (fltTime) {
-      if (fltTime==='古代'&&b.time!=='古代') return false;
-      if (fltTime==='現代'&&b.time!=='現代') return false;
-      if (fltTime==='其他'&&(b.time==='古代'||b.time==='現代')) return false;
-    }
+    if (fltTime && b.time !== fltTime) return false;
     for (const [gk,tags] of Object.entries(fltTags)) {
       if (tags?.length && !tags.some(t=>b.types.includes(t))) return false;
     }
@@ -1193,7 +1205,7 @@ function openTagSheet(gk) {
       const sgk=el.dataset.sgk, tag=el.dataset.stag;
       const cur=fltTags[sgk]||[];
       fltTags[sgk]=cur.includes(tag)?cur.filter(x=>x!==tag):[...cur,tag];
-      renderFilters(); renderGrid();
+      currentPage=1; renderFilters(); renderGrid();
       openTagSheet(sgk); // re-render sheet with updated state
     });
   });
@@ -1215,7 +1227,7 @@ function openFilterSheet() {
     if (ov) ov.addEventListener('click', closeFilterSheet);
     if (cl) cl.addEventListener('click', closeFilterSheet);
     if (ca) ca.addEventListener('click', () => {
-      fltSpice=''; fltLength=''; fltTime=''; fltTags={};
+      fltSpice=''; fltLength=''; fltTime=''; fltTags={}; currentPage=1;
       renderFilters(); renderGrid(); renderFilterSheetBody();
     });
     if (sh) {
@@ -1267,7 +1279,8 @@ function renderFilterSheetBody() {
   }
   h += `</div></div>`;
   h += `<div class="flt-section"><div class="flt-section-label">時代</div><div class="flt-chips">`;
-  ['古代','現代','其他'].forEach(t => {
+  const allTimes = [...new Set(books.map(b => b.time).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh'));
+  allTimes.forEach(t => {
     const on = fltTime===t;
     h += `<span class="tag-sheet-item${on?' sel':''}" data-ftype="time" data-fval="${esc(t)}"
       ${on?`style="background:${TC.bg};color:${TC.text};border-color:${TC.border}"`:''}>${esc(t)}</span>`;
@@ -1299,7 +1312,7 @@ function bindFilterSheetEvents() {
       if (t==='spice')  fltSpice  = fltSpice===v  ? '' : v;
       if (t==='length') fltLength = fltLength===v ? '' : v;
       if (t==='time')   fltTime   = fltTime===v   ? '' : v;
-      renderFilters(); renderGrid(); renderFilterSheetBody();
+      currentPage = 1; renderFilters(); renderGrid(); renderFilterSheetBody();
     });
   });
   body.querySelectorAll('[data-fgroup]').forEach(el => {
@@ -1308,7 +1321,7 @@ function bindFilterSheetEvents() {
       if (!tag) return;
       const cur = fltTags[gk]||[];
       fltTags[gk] = cur.includes(tag) ? cur.filter(x=>x!==tag) : [...cur,tag];
-      renderFilters(); renderGrid(); renderFilterSheetBody();
+      currentPage = 1; renderFilters(); renderGrid(); renderFilterSheetBody();
     });
   });
 }
@@ -1320,14 +1333,44 @@ function renderGrid() {
   document.getElementById('result-count').textContent = `共 ${filtered.length} 筆`;
   const grid = document.getElementById('book-grid');
   const empty = document.getElementById('empty-state');
-  if (!filtered.length) { grid.innerHTML=''; empty.classList.remove('hide'); return; }
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.classList.remove('hide');
+    renderPagination(0, 0);
+    return;
+  }
   empty.classList.add('hide');
-  grid.innerHTML = filtered.map((b,i) => {
-    const featured = i===0 && filtered.length>1;
+  const totalPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * BOOKS_PER_PAGE;
+  const pageBooks = filtered.slice(start, start + BOOKS_PER_PAGE);
+  grid.innerHTML = pageBooks.map((b, i) => {
+    const featured = i===0 && pageBooks.length>1;
     return renderBookCardHTML(b, featured);
   }).join('');
   grid.querySelectorAll('.card-wrap').forEach(el => {
     el.addEventListener('click', () => openModal(+el.dataset.id));
+  });
+  renderPagination(filtered.length, totalPages);
+}
+
+function renderPagination(total, totalPages) {
+  const bar = document.getElementById('pagination-bar');
+  if (!bar) return;
+  if (total <= BOOKS_PER_PAGE) { bar.innerHTML = ''; return; }
+  bar.innerHTML = `
+    <button class="pg-btn" id="pg-prev" ${currentPage <= 1 ? 'disabled' : ''}>
+      <span class="material-icons-outlined" style="font-size:18px">chevron_left</span>上一頁
+    </button>
+    <span class="pg-info">第 ${currentPage} / ${totalPages} 頁</span>
+    <button class="pg-btn" id="pg-next" ${currentPage >= totalPages ? 'disabled' : ''}>
+      下一頁<span class="material-icons-outlined" style="font-size:18px">chevron_right</span>
+    </button>`;
+  document.getElementById('pg-prev').addEventListener('click', () => {
+    if (currentPage > 1) { currentPage--; renderGrid(); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
+  document.getElementById('pg-next').addEventListener('click', () => {
+    if (currentPage < totalPages) { currentPage++; renderGrid(); window.scrollTo({top:0, behavior:'smooth'}); }
   });
 }
 
@@ -2142,7 +2185,7 @@ document.getElementById('btn-cancel').addEventListener('click',()=>{
 document.getElementById('btn-save').addEventListener('click',handleSave);
 document.getElementById('f-stars').addEventListener('input',updateStarsPreview);
 document.getElementById('search-inp').addEventListener('input',e=>{
-  searchQ=e.target.value; renderGrid();
+  searchQ=e.target.value; currentPage=1; renderGrid();
 });
 
 document.getElementById('modal-btn-close').addEventListener('click',()=>{
