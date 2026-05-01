@@ -584,14 +584,18 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 /* ─── DESKTOP MODAL ─── */
 @media (min-width: 768px) {
   .modal{
+    position:fixed;
     width:680px;
+    max-width:90vw;
     left:50%;
-    bottom:auto;
     top:50%;
     transform:translate(-50%,-50%);
+    bottom:auto;
+    right:auto;
+    border-radius:20px;
     height:auto;
     max-height:85vh;
-    border-radius:20px;
+    overflow-y:auto;
   }
   .modal-drag-handle{ display:none; }
 }
@@ -1824,7 +1828,16 @@ async function syncUpdate(book) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(buildPayload(book)),
     });
-    if (!res.ok) throw new Error(res.status);
+    if (!res.ok) {
+      if (res.status === 400) {
+        const data = await res.json().catch(() => ({}));
+        if (JSON.stringify(data).includes('archived')) {
+          await syncCreate({...book, notionId: null});
+          return;
+        }
+      }
+      throw new Error(res.status);
+    }
     showToast('Notion 已更新 <span class="material-icons-outlined">check</span>');
   } catch(e) {
     showToast('Notion 更新失敗，請稍後重試', false);
