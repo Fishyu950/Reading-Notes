@@ -90,9 +90,9 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 }
 .btn-gold{background:#7F8162;color:#fff}
 .btn-gold:hover{background:#6a6c50}
-.btn-outline{background:var(--surface);color:var(--gold);border:1px solid var(--borderMd)}
+.btn-outline{background:var(--surface);color:var(--gold);border:1px solid var(--borderMd);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .btn-outline:hover{background:var(--border)}
-.btn-ghost{background:transparent;color:var(--textSoft);border:1px solid transparent;padding:6px 8px}
+.btn-ghost{background:transparent;color:var(--textSoft);border:1px solid transparent;padding:6px 8px;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .btn-ghost:hover{background:var(--surface)}
 .btn-back{background:none;border:none;color:var(--gold);cursor:pointer;font-size:20px;padding:0 6px 0 0;font-family:inherit}
 
@@ -1299,6 +1299,7 @@ function renderBookCardHTML(b, featured=false) {
 }
 
 /* ═══════════ MODAL ═══════════ */
+let _bodyScrollY = 0;
 function openModal(id) {
   const b = books.find(x=>x.id===id);
   if (!b) return;
@@ -1306,6 +1307,19 @@ function openModal(id) {
   document.getElementById('modal-content').innerHTML = renderDetailHTML(b);
   document.getElementById('modal-box').style.transform = '';
   document.getElementById('modal-overlay').classList.add('open');
+  _bodyScrollY = window.scrollY;
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_bodyScrollY}px`;
+  document.body.style.width = '100%';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, _bodyScrollY);
 }
 
 function renderDetailHTML(b) {
@@ -1764,7 +1778,7 @@ function deleteBook(id) {
   const notionId = book.notionId;
   books = books.filter(b => b.id !== id);
   saveBooks();
-  document.getElementById('modal-overlay').classList.remove('open');
+  closeModal();
   renderStats(); renderGrid(); renderFilters();
   syncDelete(notionId);
 }
@@ -1855,25 +1869,31 @@ document.getElementById('search-inp').addEventListener('input',e=>{
 });
 
 document.getElementById('modal-btn-close').addEventListener('click',()=>{
-  document.getElementById('modal-overlay').classList.remove('open');
+  closeModal();
 });
 document.getElementById('modal-overlay').addEventListener('click',e=>{
   if (e.target===document.getElementById('modal-overlay'))
-    document.getElementById('modal-overlay').classList.remove('open');
+    closeModal();
 });
 document.getElementById('modal-btn-edit').addEventListener('click',()=>{
   const b=books.find(x=>x.id===currentModalBookId);
-  if (b){document.getElementById('modal-overlay').classList.remove('open');showForm(b);}
+  if (b){closeModal();showForm(b);}
 });
 document.getElementById('modal-btn-export').addEventListener('click',handleExport);
 document.getElementById('modal-btn-delete').addEventListener('click',()=>{
   deleteBook(currentModalBookId);
 });
-// Modal swipe-to-close
+// Modal swipe-to-close (only from drag handle / topbar, not from scrollable content)
 const _mbox = document.getElementById('modal-box');
-let _tsY = 0;
-_mbox.addEventListener('touchstart', e => { _tsY = e.touches[0].clientY; _mbox.style.transition='none'; }, {passive:true});
+let _tsY = 0, _dragEnabled = false;
+_mbox.addEventListener('touchstart', e => {
+  if (e.target.closest('.modal-body')) { _dragEnabled = false; return; }
+  _dragEnabled = true;
+  _tsY = e.touches[0].clientY;
+  _mbox.style.transition = 'none';
+}, {passive:true});
 _mbox.addEventListener('touchmove', e => {
+  if (!_dragEnabled) return;
   const dy = e.touches[0].clientY - _tsY;
   if (dy > 0) {
     e.preventDefault();
@@ -1881,12 +1901,13 @@ _mbox.addEventListener('touchmove', e => {
   }
 }, {passive:false});
 _mbox.addEventListener('touchend', e => {
+  if (!_dragEnabled) return;
   const dy = e.changedTouches[0].clientY - _tsY;
   if (dy > 80) {
     _mbox.style.transition = 'transform 0.3s ease';
     _mbox.style.transform = 'translateY(100%)';
     setTimeout(() => {
-      document.getElementById('modal-overlay').classList.remove('open');
+      closeModal();
       _mbox.style.transform = '';
       _mbox.style.transition = '';
     }, 300);
