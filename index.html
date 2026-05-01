@@ -183,11 +183,10 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 }
 .overlay.open{display:flex}
 .modal{
+  position:fixed;bottom:0;left:0;right:0;height:92vh;
   background:var(--card);border:1px solid var(--borderMd);border-radius:20px 20px 0 0;
-  max-width:700px;width:100%;max-height:92vh;
   display:flex;flex-direction:column;overflow:hidden;
   box-shadow:0 24px 60px rgba(20,12,4,.22);
-  position:relative;
 }
 .modal-topbar{
   display:flex;align-items:center;justify-content:space-between;
@@ -202,7 +201,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   padding:22px 28px 18px;border-bottom:1px solid var(--border);
 }
 .modal-body{padding:18px 28px}
-#modal-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+#modal-content{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;min-height:0}
 
 /* ─── META BOXES ─── */
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -527,7 +526,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .fchip{ flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
 
   /* ── modal: full screen sheet ── */
-  .modal{ max-width: 100%; border-bottom: none; will-change: transform; }
+  .modal{ border-bottom: none; will-change: transform; }
   .modal-topbar{ padding: 10px 14px 10px 18px; flex-wrap: wrap; gap: 6px; }
   .modal-topbar-label{ font-size: 10px; }
   .modal-actions{ gap: 5px; }
@@ -581,7 +580,6 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .grid{ grid-template-columns: repeat(2, 1fr); }
   .card-wrap.featured{ grid-column: span 2; }
   .form-grid4{ grid-template-columns: 1fr 1fr; gap: 12px; }
-  .modal{ max-width: 92%; }
   .form-inp, .form-sel, .form-ta{ font-size: 15px; }
 }
 
