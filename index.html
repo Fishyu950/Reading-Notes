@@ -671,7 +671,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
         <div class="settings-wrap" id="btn-settings">
           <button class="btn btn-outline settings-gear-btn" onclick="toggleSettingsMenu(event)"><span class="material-icons-outlined">settings</span></button>
           <div class="settings-dropdown" id="settings-dropdown">
-            <button class="settings-item" onclick="syncFromNotion();closeSettingsMenu()"><span class="settings-item-sync">⟳</span> 從 Notion 同步</button>
+            <button class="settings-item" id="btn-sync-notion" onclick="closeSettingsMenu()"><span class="settings-item-sync">⟳</span> 從 Notion 同步</button>
             <button class="settings-item" onclick="exportData();closeSettingsMenu()"><span class="material-icons-outlined">upload</span> 匯出</button>
             <button class="settings-item" onclick="document.getElementById('import-json-input').click();closeSettingsMenu()"><span class="material-icons-outlined">download</span> 匯入</button>
           </div>
@@ -1998,6 +1998,7 @@ document.getElementById('modal-btn-export').addEventListener('click',handleExpor
 document.getElementById('modal-btn-delete').addEventListener('click',()=>{
   deleteBook(currentModalBookId);
 });
+document.getElementById('btn-sync-notion').addEventListener('click', syncFromNotion);
 // Modal swipe-to-close (only from drag handle / topbar, not from scrollable content)
 const _mbox = document.getElementById('modal-box');
 let _tsY = 0, _dragEnabled = false;
