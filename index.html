@@ -770,21 +770,22 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
         <div class="chips-tray hide" id="selected-chips-tray"></div>
         <div id="tag-accordion"></div>
       </div>
-      <div class="form-grid2" style="margin-bottom:12px">
-        <div><label class="form-lbl" style="color:var(--textSoft)">大綱文案</label><textarea class="form-ta" id="f-synopsis" placeholder="故事簡介…"></textarea></div>
-        <div>
-          <label class="form-lbl" style="color:var(--textMid)">喜歡的名言佳句</label>
-          <div class="quote-toolbar">
-            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('num')">1. 2. 3.</button>
-            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('bullet')">•</button>
-            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('indent')" title="換行縮排">↵⎵</button>
-          </div>
-          <textarea class="form-ta" id="f-quote" placeholder="記錄書中讓你印象深刻的句子…" style="min-height:80px;white-space:pre-wrap"></textarea>
-        </div>
+      <div style="margin-bottom:12px">
+        <label class="form-lbl" style="color:var(--textSoft)">大綱文案</label>
+        <textarea class="form-ta" id="f-synopsis" placeholder="故事簡介…" style="width:100%"></textarea>
+      </div>
+      <div style="margin-bottom:12px">
+        <label class="form-lbl" style="color:var(--gold)">個人心得</label>
+        <textarea class="form-ta" id="f-review" placeholder="讀後感想…" style="width:100%"></textarea>
       </div>
       <div style="margin-bottom:20px">
-        <label class="form-lbl" style="color:var(--gold)">個人心得</label>
-        <textarea class="form-ta" id="f-review" placeholder="讀後感想…"></textarea>
+        <label class="form-lbl" style="color:var(--textMid)">名句賞析</label>
+        <div class="quote-toolbar">
+          <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('num')">1. 2. 3.</button>
+          <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('bullet')">•</button>
+          <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('indent')" title="換行縮排">↵⎵</button>
+        </div>
+        <textarea class="form-ta" id="f-quote" placeholder="記錄書中讓你印象深刻的句子…" style="width:100%;min-height:80px;white-space:pre-wrap"></textarea>
       </div>
       <div class="d-flex gap8">
         <button class="btn-save idle" id="btn-save">儲存</button>
