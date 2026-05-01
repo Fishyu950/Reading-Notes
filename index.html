@@ -147,7 +147,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 
 /* ─── CARD GRID ─── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.card-wrap{cursor:pointer;border-radius:14px;transition:transform .2s,box-shadow .2s}
+.card-wrap{cursor:pointer;border-radius:14px;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .card-wrap:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(60,40,10,.1)}
 .card-wrap.featured{grid-column:span 2}
 .book-card{
@@ -184,14 +184,15 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .overlay.open{display:flex}
 .modal{
   background:var(--card);border:1px solid var(--borderMd);border-radius:20px;
-  max-width:700px;width:100%;max-height:90vh;overflow:auto;
+  max-width:700px;width:100%;max-height:90vh;overflow:hidden;
+  display:flex;flex-direction:column;
   box-shadow:0 24px 60px rgba(20,12,4,.22);
   position:relative;
 }
 .modal-topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:11px 18px 11px 26px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:rgba(254,254,252,.96);
+  flex-shrink:0;background:rgba(254,254,252,.96);
   backdrop-filter:blur(6px);z-index:10;
 }
 .modal-topbar-label{font-size:13px;color:var(--textSoft);letter-spacing:1.5px}
@@ -201,6 +202,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   padding:22px 28px 18px;border-bottom:1px solid var(--border);
 }
 .modal-body{padding:18px 28px}
+#modal-content{flex:1;overflow-y:auto;min-height:0}
 
 /* ─── META BOXES ─── */
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
