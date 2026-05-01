@@ -260,6 +260,12 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .sel-opt:hover{border-color:var(--borderMd);color:var(--textMid)}
 .sel-opt.active{font-weight:700;border-width:1.5px}
 .sel-opt:active{transform:scale(.93)}
+.time-edit-btn{font-size:11px;padding:2px 8px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--textSoft);cursor:pointer;line-height:1.5;font-family:inherit;transition:background .12s,color .12s}
+.time-edit-btn.active{background:var(--border);color:var(--textMid)}
+.time-tag-del{margin-left:3px;font-size:10px;line-height:1;opacity:.65;cursor:pointer;user-select:none;vertical-align:middle}
+.time-tag-del:hover{opacity:1}
+.time-add-tag{padding:5px 11px;border-radius:20px;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;border:1.5px dashed var(--border);background:transparent;color:var(--textFaint);transition:all .15s;white-space:nowrap}
+.time-add-tag:hover{border-color:var(--borderMd);color:var(--textMid)}
 .range-wrap{margin-top:7px}
 .range-inp{width:100%;-webkit-appearance:none;appearance:none;height:4px;background:transparent;outline:none;cursor:pointer}
 .range-inp::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--sf,#697d7b) var(--sp,0%),#d0cfca var(--sp,0%))}
@@ -725,13 +731,15 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
       </div>
       <!-- 時代 + 篇幅 + 肉度 custom selectors -->
       <div style="margin-bottom:12px">
-        <label class="form-lbl">時代</label>
-        <div class="sel-group" id="sel-time">
-          <span class="sel-opt" data-sel="time" data-val="古代">古代</span>
-          <span class="sel-opt" data-sel="time" data-val="現代">現代</span>
-          <span class="sel-opt" data-sel="time" data-val="未來">未來</span>
-          <span class="sel-opt" data-sel="time" data-val="架空">架空</span>
-          <span class="sel-opt" data-sel="time" data-val="其他">其他</span>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+          <label class="form-lbl" style="margin-bottom:0">時代</label>
+          <button type="button" id="btn-time-edit" class="time-edit-btn" onclick="toggleTimeEdit()">編輯</button>
+        </div>
+        <div class="sel-group" id="sel-time"></div>
+        <div id="time-add-row" style="display:none;margin-top:7px;align-items:center;gap:6px">
+          <input id="time-new-inp" class="form-inp" placeholder="新標籤名稱" style="max-width:110px;padding:5px 10px;font-size:13px" onkeydown="if(event.key==='Enter')confirmAddTimeTag()"/>
+          <button type="button" class="quote-toolbar-btn" onclick="confirmAddTimeTag()">新增</button>
+          <button type="button" class="quote-toolbar-btn" onclick="cancelAddTimeTag()">取消</button>
         </div>
       </div>
       <div class="form-grid2" style="margin-bottom:12px">
@@ -1538,6 +1546,8 @@ function showForm(book=null, fromModal=false) {
   setSelOpt('spice',  book ? book.spice  : defaultSpice,  SPICE_MAP);
   if (book) starsInp.value=book.stars; else starsInp.value=8;
   updateStarsPreview();
+  _timeEditMode = false;
+  renderTimeTags();
   bindSelOpts();
   renderTagAccordion();
   setSaveState('idle');
@@ -1551,14 +1561,10 @@ function showForm(book=null, fromModal=false) {
 /* Custom selector helpers */
 const _selState = {time:'古代', length:'長篇', spice:'肉渣'};
 
+const SEL_TIME_COLOR = {bg:'#76614F',text:'#fff',border:'#76614F'};
+
 const SEL_COLOURS = {
-  time: {
-    '古代': {bg:'#76614F',text:'#fff',border:'#76614F'},
-    '現代': {bg:'#76614F',text:'#fff',border:'#76614F'},
-    '未來': {bg:'#76614F',text:'#fff',border:'#76614F'},
-    '架空': {bg:'#76614F',text:'#fff',border:'#76614F'},
-    '其他': {bg:'#76614F',text:'#fff',border:'#76614F'},
-  },
+  time: new Proxy({}, { get: () => SEL_TIME_COLOR }),
   length: {
     '短篇':  {bg:'#B0B6AC',text:'#fff',border:'#B0B6AC'},
     '中篇':  {bg:'#B0B6AC',text:'#fff',border:'#B0B6AC'},
@@ -1595,8 +1601,80 @@ function getSelOpt(group) {
   return _selState[group] || '';
 }
 
+/* ─── TIME TAGS (editable) ─── */
+const DEFAULT_TIME_TAGS = ['古代','古今','現代','未來','架空','西幻','其他'];
+let _timeEditMode = false;
+
+function getTimeTags() {
+  try { return JSON.parse(localStorage.getItem('time-tags')) || [...DEFAULT_TIME_TAGS]; }
+  catch(e) { return [...DEFAULT_TIME_TAGS]; }
+}
+function saveTimeTags(tags) { localStorage.setItem('time-tags', JSON.stringify(tags)); }
+
+function renderTimeTags() {
+  const group = document.getElementById('sel-time');
+  if (!group) return;
+  const tags = getTimeTags();
+  const cur = getSelOpt('time');
+  const c = SEL_TIME_COLOR;
+  group.innerHTML = tags.map(t => {
+    const active = t === cur;
+    const style = active ? `background:${c.bg};color:${c.text};border-color:${c.border};font-weight:700;border-width:1.5px` : '';
+    const del = _timeEditMode ? `<span class="time-tag-del" data-del="${t}">✕</span>` : '';
+    return `<span class="sel-opt${active?' active':''}" data-sel="time" data-val="${t}" style="${style}">${t}${del}</span>`;
+  }).join('') + (_timeEditMode ? `<button type="button" class="time-add-tag" onclick="showTimeAddRow()">＋ 新增</button>` : '');
+
+  if (!group._delegated) {
+    group._delegated = true;
+    group.addEventListener('click', e => {
+      const del = e.target.closest('.time-tag-del');
+      if (del) { deleteTimeTag(del.dataset.del); return; }
+      const opt = e.target.closest('[data-sel="time"]');
+      if (opt && opt.dataset.val) { setSelOpt('time', opt.dataset.val); renderTimeTags(); }
+    });
+  }
+}
+
+function toggleTimeEdit() {
+  _timeEditMode = !_timeEditMode;
+  document.getElementById('btn-time-edit').classList.toggle('active', _timeEditMode);
+  if (!_timeEditMode) document.getElementById('time-add-row').style.display = 'none';
+  renderTimeTags();
+}
+
+function showTimeAddRow() {
+  const row = document.getElementById('time-add-row');
+  row.style.display = 'flex';
+  const inp = document.getElementById('time-new-inp');
+  inp.value = '';
+  inp.focus();
+}
+
+function confirmAddTimeTag() {
+  const inp = document.getElementById('time-new-inp');
+  const val = inp.value.trim();
+  if (!val) return inp.focus();
+  const tags = getTimeTags();
+  if (!tags.includes(val)) { tags.push(val); saveTimeTags(tags); }
+  document.getElementById('time-add-row').style.display = 'none';
+  renderTimeTags();
+  setSelOpt('time', val);
+  renderTimeTags();
+}
+
+function cancelAddTimeTag() {
+  document.getElementById('time-add-row').style.display = 'none';
+}
+
+function deleteTimeTag(val) {
+  const tags = getTimeTags().filter(t => t !== val);
+  saveTimeTags(tags);
+  if (getSelOpt('time') === val) _selState.time = tags[0] || '';
+  renderTimeTags();
+}
+
 function bindSelOpts() {
-  document.querySelectorAll('[data-sel]').forEach(el => {
+  document.querySelectorAll('[data-sel]:not([data-sel="time"])').forEach(el => {
     el.addEventListener('click', () => {
       setSelOpt(el.dataset.sel, el.dataset.val);
     });
