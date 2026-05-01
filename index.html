@@ -1796,6 +1796,57 @@ function setSaveState(state) {
 
 /* ═══════════ NOTION SYNC ═══════════ */
 const WORKER = 'https://bold-brook-9296.golu850225.workers.dev';
+
+async function syncFromNotion() {
+  const syncBtn = document.getElementById('sync-btn');
+  if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = '⟳ 同步中…'; }
+
+  try {
+    const res = await fetch(WORKER, { method: 'GET' });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    if (!data.success || !Array.isArray(data.books)) throw new Error('回傳格式錯誤');
+
+    const notionBooks = data.books;
+    const localById = {};
+    books.forEach(b => { if (b.notionId) localById[b.notionId] = b; });
+
+    books = notionBooks.map(nb => {
+      const local = localById[nb.notionId];
+      const typesFlat = [
+        ...(nb.types['劇情類型'] || []),
+        ...(nb.types['關係設定'] || []),
+        ...(nb.types['攻受特質'] || []),
+        ...(nb.types['虐度結局'] || []),
+      ];
+      return {
+        id:         local?.id || Date.now() + Math.random(),
+        notionId:   nb.notionId,
+        title:      nb.title,
+        author:     nb.author,
+        time:       nb.time,
+        length:     nb.length,
+        spice:      nb.spice,
+        stars:      nb.stars,
+        mainCP:     nb.mainCP,
+        attackType: nb.attackType,
+        synopsis:   nb.synopsis,
+        review:     nb.review,
+        quote:      nb.quote,
+        types:      typesFlat,
+      };
+    });
+
+    saveBooks();
+    renderStats(); renderFilters(); renderGrid();
+    showToast('已從 Notion 同步 ' + books.length + ' 筆書目 <span class="material-icons-outlined">check</span>');
+  } catch(e) {
+    showToast('從 Notion 讀取失敗：' + e.message, false);
+  } finally {
+    if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '⟳ 從 Notion 同步'; }
+  }
+}
+
 let _toastTimer = null;
 
 function showToast(msg, ok=true) {
@@ -1998,7 +2049,7 @@ document.getElementById('modal-btn-export').addEventListener('click',handleExpor
 document.getElementById('modal-btn-delete').addEventListener('click',()=>{
   deleteBook(currentModalBookId);
 });
-document.getElementById('btn-sync-notion').addEventListener('click', () => syncFromNotion());
+document.getElementById('btn-sync-notion').addEventListener('click', () => { syncFromNotion(); });
 // Modal swipe-to-close (only from drag handle / topbar, not from scrollable content)
 const _mbox = document.getElementById('modal-box');
 let _tsY = 0, _dragEnabled = false;
