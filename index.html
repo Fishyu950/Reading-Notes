@@ -1998,7 +1998,7 @@ document.getElementById('modal-btn-export').addEventListener('click',handleExpor
 document.getElementById('modal-btn-delete').addEventListener('click',()=>{
   deleteBook(currentModalBookId);
 });
-document.getElementById('btn-sync-notion').addEventListener('click', syncFromNotion);
+document.getElementById('btn-sync-notion').addEventListener('click', () => syncFromNotion());
 // Modal swipe-to-close (only from drag handle / topbar, not from scrollable content)
 const _mbox = document.getElementById('modal-box');
 let _tsY = 0, _dragEnabled = false;
