@@ -67,7 +67,7 @@ body{
 .hdr{
   border-bottom:1px solid var(--border);
   padding:0 32px;
-  position:sticky;top:0;z-index:100;
+  position:sticky;top:0;z-index:300;
   background:rgba(253,251,247,.92);
   backdrop-filter:blur(12px);
 }
@@ -253,7 +253,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   font-size:14px;font-family:inherit;font-weight:500;
   border:1px solid var(--border);background:var(--card);
   color:var(--textFaint);transition:all .15s;user-select:none;
-  white-space:nowrap;
+  white-space:nowrap;-webkit-tap-highlight-color:transparent;
 }
 .sel-opt:hover{border-color:var(--borderMd);color:var(--textMid)}
 .sel-opt.active{font-weight:700;border-width:1.5px}
@@ -1875,9 +1875,19 @@ _mbox.addEventListener('touchmove', e => {
 }, {passive:true});
 _mbox.addEventListener('touchend', e => {
   const dy = e.changedTouches[0].clientY - _tsY;
-  _mbox.style.transition = '';
-  if (dy > 80) { _mbox.style.transform = ''; document.getElementById('modal-overlay').classList.remove('open'); }
-  else _mbox.style.transform = '';
+  if (dy > 80) {
+    _mbox.style.transition = 'transform 0.3s ease';
+    _mbox.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      document.getElementById('modal-overlay').classList.remove('open');
+      _mbox.style.transform = '';
+      _mbox.style.transition = '';
+    }, 300);
+  } else {
+    _mbox.style.transition = 'transform 0.3s ease';
+    _mbox.style.transform = '';
+    setTimeout(() => { _mbox.style.transition = ''; }, 300);
+  }
 });
 // close dropdown on outside click
 document.addEventListener('click',()=>{
