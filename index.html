@@ -178,13 +178,13 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 /* ─── MODAL OVERLAY ─── */
 .overlay{
   position:fixed;inset:0;background:rgba(20,12,4,.45);
-  display:none;align-items:center;justify-content:center;
-  z-index:200;padding:20px;backdrop-filter:blur(7px);overflow-y:auto;
+  display:none;align-items:flex-end;justify-content:center;
+  z-index:200;padding:0;backdrop-filter:blur(7px);overflow:hidden;
 }
 .overlay.open{display:flex}
 .modal{
-  background:var(--card);border:1px solid var(--borderMd);border-radius:20px;
-  max-width:700px;width:100%;max-height:90vh;overflow:hidden;
+  background:var(--card);border:1px solid var(--borderMd);border-radius:20px 20px 0 0;
+  max-width:700px;width:100%;max-height:92vh;overflow:hidden;
   display:flex;flex-direction:column;
   box-shadow:0 24px 60px rgba(20,12,4,.22);
   position:relative;
@@ -527,15 +527,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .fchip{ flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
 
   /* ── modal: full screen sheet ── */
-  .overlay{ padding: 0; align-items: flex-end; overflow: hidden; }
-  .modal{
-    max-width: 100%;
-    width: 100%;
-    max-height: 92vh;
-    border-radius: 20px 20px 0 0 !important;
-    border-bottom: none;
-    will-change: transform;
-  }
+  .modal{ max-width: 100%; border-bottom: none; will-change: transform; }
   .modal-topbar{ padding: 10px 14px 10px 18px; flex-wrap: wrap; gap: 6px; }
   .modal-topbar-label{ font-size: 10px; }
   .modal-actions{ gap: 5px; }
@@ -615,8 +607,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .flt-clear-btn{font-size:13px;color:var(--textSoft);border:1px solid var(--border);background:none;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:20px;transition:all .12s;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .flt-clear-btn:active{background:var(--surface)}
 /* ─── MODAL DRAG HANDLE ─── */
-.modal-drag-handle{display:none;width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;flex-shrink:0}
-@media(max-width:640px){.modal-drag-handle{display:block}}
+.modal-drag-handle{display:block;width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;flex-shrink:0}
 </style>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 <style>.material-icons-outlined{font-size:18px;vertical-align:middle;line-height:1;user-select:none}.empty-icon .material-icons-outlined{font-size:48px}.search-icon .material-icons-outlined{font-size:20px}</style>
@@ -1302,6 +1293,7 @@ function renderBookCardHTML(b, featured=false) {
 
 /* ═══════════ MODAL ═══════════ */
 let _bodyScrollY = 0;
+let _modalHistoryPushed = false;
 function openModal(id) {
   const b = books.find(x=>x.id===id);
   if (!b) return;
@@ -1314,6 +1306,8 @@ function openModal(id) {
   document.body.style.position = 'fixed';
   document.body.style.top = `-${_bodyScrollY}px`;
   document.body.style.width = '100%';
+  history.pushState({modal:true}, '');
+  _modalHistoryPushed = true;
 }
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
@@ -1322,7 +1316,18 @@ function closeModal() {
   document.body.style.top = '';
   document.body.style.width = '';
   window.scrollTo(0, _bodyScrollY);
+  if (_modalHistoryPushed) {
+    _modalHistoryPushed = false;
+    history.back();
+  }
 }
+window.addEventListener('popstate', () => {
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay.classList.contains('open')) {
+    _modalHistoryPushed = false;
+    closeModal();
+  }
+});
 
 function renderDetailHTML(b) {
   const groupedTags = tagGroups
