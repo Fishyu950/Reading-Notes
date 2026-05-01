@@ -222,7 +222,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .text-block{
   font-size:13px;color:var(--textMid);line-height:2.05;
   border-left:2px solid var(--borderMd);padding-left:11px;
-  white-space:pre-line;font-style:normal;margin:0;
+  white-space:pre-wrap;font-style:normal;margin:0;
 }
 
 /* ─── FORM ─── */
@@ -244,6 +244,9 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 }
 .form-inp:focus,.form-ta:focus{border-color:var(--borderMd)}
 .form-ta{resize:vertical;min-height:100px}
+.quote-toolbar{display:flex;gap:4px;margin-bottom:5px}
+.quote-toolbar-btn{font-size:11px;padding:3px 9px;background:var(--surface);color:var(--textSoft);border:1px solid var(--border);border-radius:6px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
+.quote-toolbar-btn:hover{background:var(--border);color:var(--textMid)}
 
 /* ─── CUSTOM SELECTOR (replaces <select>) ─── */
 .sel-group{display:flex;flex-wrap:wrap;gap:5px;margin-top:1px}
@@ -769,7 +772,15 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
       </div>
       <div class="form-grid2" style="margin-bottom:12px">
         <div><label class="form-lbl" style="color:var(--textSoft)">大綱文案</label><textarea class="form-ta" id="f-synopsis" placeholder="故事簡介…"></textarea></div>
-        <div><label class="form-lbl" style="color:var(--textMid)">喜歡的名言佳句</label><textarea class="form-ta" id="f-quote" placeholder="記錄書中讓你印象深刻的句子…" style="min-height:80px"></textarea></div>
+        <div>
+          <label class="form-lbl" style="color:var(--textMid)">喜歡的名言佳句</label>
+          <div class="quote-toolbar">
+            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('num')">1. 2. 3.</button>
+            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('bullet')">•</button>
+            <button type="button" class="quote-toolbar-btn" onclick="quoteInsert('indent')" title="換行縮排">↵⎵</button>
+          </div>
+          <textarea class="form-ta" id="f-quote" placeholder="記錄書中讓你印象深刻的句子…" style="min-height:80px;white-space:pre-wrap"></textarea>
+        </div>
       </div>
       <div style="margin-bottom:20px">
         <label class="form-lbl" style="color:var(--gold)">個人心得</label>
@@ -1451,7 +1462,7 @@ function renderDetailHTML(b) {
       ${b.quote?`
       ${dividerHTML('名 言 佳 句','var(--borderMd)')}
       <blockquote style="margin:0;padding:12px 16px;background:var(--surface);border-radius:10px;border-left:3px solid var(--borderMd)">
-        <p style="margin:0;font-size:14px;color:var(--textMid);line-height:2.05;white-space:pre-line;font-style:normal">${esc(b.quote)}</p>
+        <p style="margin:0;font-size:14px;color:var(--textMid);line-height:2.05;white-space:pre-wrap;font-style:normal">${esc(b.quote)}</p>
       </blockquote>`:''}
     </div>`;
 }
@@ -1491,7 +1502,7 @@ function renderExportCard(b) {
       ${b.quote?`
       ${dividerHTML('名 言 佳 句','var(--borderMd)')}
       <blockquote style="margin:0;padding:10px 14px;background:var(--surface);border-radius:9px;border-left:3px solid var(--borderMd)">
-        <p style="margin:0;font-size:13px;color:var(--textMid);line-height:2;white-space:pre-line;font-style:normal">${esc(b.quote)}</p>
+        <p style="margin:0;font-size:13px;color:var(--textMid);line-height:2;white-space:pre-wrap;font-style:normal">${esc(b.quote)}</p>
       </blockquote>`:''}
     </div>
     <div class="export-footer">
@@ -1845,6 +1856,27 @@ async function syncFromNotion() {
   } finally {
     if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '⟳ 從 Notion 同步'; }
   }
+}
+
+function quoteInsert(type) {
+  const ta = document.getElementById('f-quote');
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const val   = ta.value;
+  let insert  = '';
+  if (type === 'bullet') {
+    insert = '• ';
+  } else if (type === 'indent') {
+    insert = '\n   ';
+  } else if (type === 'num') {
+    const before  = val.substring(0, start);
+    const matches = before.match(/(\d+)\./g);
+    const next    = matches ? parseInt(matches[matches.length - 1]) + 1 : 1;
+    insert = next + '. ';
+  }
+  ta.value = val.substring(0, start) + insert + val.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + insert.length;
+  ta.focus();
 }
 
 let _toastTimer = null;
