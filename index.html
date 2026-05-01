@@ -159,10 +159,9 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .chip:active{transform:scale(.88)}
 
 /* ─── CARD GRID ─── */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:14px}
 .card-wrap{cursor:pointer;border-radius:14px;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .card-wrap:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(60,40,10,.1)}
-.card-wrap.featured{grid-column:span 2}
 .book-card{
   background:var(--card);border:1px solid var(--border);
   border-radius:14px;overflow:hidden;display:flex;flex-direction:column;height:100%;
@@ -180,7 +179,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .card-atk{font-size:11px;color:var(--textFaint);line-height:1.8;margin-bottom:0}
 .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
 .card-more{font-size:11px;color:var(--textFaint);align-self:center}
-.card-synopsis{font-size:12px;color:var(--textSoft);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.5}
+.card-synopsis{font-size:12px;color:var(--textSoft);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.5;border-left:3px solid var(--borderMd);padding-left:8px}
 
 /* ─── STARS ─── */
 .stars{display:flex;gap:2px;align-items:center;margin-bottom:0}
@@ -494,7 +493,8 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .tag-sheet-item{
   font-size:15px;padding:7px 14px;border-radius:20px;cursor:pointer;
   font-family:inherit;border:1px solid var(--border);background:var(--surface);
-  color:var(--textFaint);transition:all .12s;user-select:none;
+  color:var(--textFaint);transition:all .12s;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
   display:inline-flex;align-items:center;gap:5px;
 }
 .tag-sheet-item.sel{font-weight:700}
@@ -598,8 +598,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 @media (min-width: 641px) and (max-width: 900px) {
   .container{ padding: 20px 22px; }
   .hdr{ padding: 0 22px; }
-  .grid{ grid-template-columns: repeat(2, 1fr); }
-  .card-wrap.featured{ grid-column: span 2; }
+  .grid{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; }
   .form-grid4{ grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-inp, .form-sel, .form-ta{ font-size: 15px; }
 }
@@ -970,7 +969,7 @@ let books = [
 /* ─── filter state ─── */
 let fltSpice='', fltLength='', fltTime='', fltTags={}, searchQ='';
 let currentPage = 1;
-const BOOKS_PER_PAGE = 16;
+const BOOKS_PER_PAGE = 15;
 let editingId = null;
 let formSelectedTypes = [];
 let currentModalBookId = null;
@@ -1356,10 +1355,7 @@ function renderGrid() {
   if (currentPage > totalPages) currentPage = totalPages;
   const start = (currentPage - 1) * BOOKS_PER_PAGE;
   const pageBooks = filtered.slice(start, start + BOOKS_PER_PAGE);
-  grid.innerHTML = pageBooks.map((b, i) => {
-    const featured = i===0 && pageBooks.length>1;
-    return renderBookCardHTML(b, featured);
-  }).join('');
+  grid.innerHTML = pageBooks.map(b => renderBookCardHTML(b, false)).join('');
   grid.querySelectorAll('.card-wrap').forEach(el => {
     el.addEventListener('click', () => openModal(+el.dataset.id));
   });
