@@ -180,7 +180,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .card-atk{font-size:11px;color:var(--textFaint);line-height:1.8;margin-bottom:0}
 .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
 .card-more{font-size:11px;color:var(--textFaint);align-self:center}
-.card-synopsis{font-size:12px;color:var(--textSoft);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.5}
+.card-synopsis{font-size:12px;color:var(--textSoft);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.5}
 
 /* ─── STARS ─── */
 .stars{display:flex;gap:2px;align-items:center;margin-bottom:0}
@@ -670,7 +670,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   display:flex;align-items:center;gap:8px;
   width:100%;padding:10px 16px;background:none;border:none;
   font-family:inherit;font-size:14px;font-weight:600;
-  color:var(--text);cursor:pointer;text-align:left;transition:background .12s;
+  color:var(--textMid);cursor:pointer;text-align:left;transition:background .12s;
 }
 .settings-item:hover{background:var(--border)}
 .settings-item .material-icons-outlined{font-size:18px;color:var(--gold)}
@@ -1258,11 +1258,17 @@ function openFilterSheet() {
   renderFilterSheetBody();
   document.getElementById('filter-sheet-overlay').classList.add('open');
   document.getElementById('filter-sheet').classList.add('open');
+  history.pushState({filterSheet:true}, '');
+  _filterHistoryPushed = true;
 }
 
 function closeFilterSheet() {
   document.getElementById('filter-sheet-overlay')?.classList.remove('open');
   document.getElementById('filter-sheet')?.classList.remove('open');
+  if (_filterHistoryPushed) {
+    _filterHistoryPushed = false;
+    history.back();
+  }
 }
 
 function renderFilterSheetBody() {
@@ -1416,6 +1422,7 @@ function renderBookCardHTML(b, featured=false) {
 let _bodyScrollY = 0;
 let _modalHistoryPushed = false;
 let _formHistoryPushed = false;
+let _filterHistoryPushed = false;
 let _formFromModal = false;
 let _savedModalBookId = null;
 
@@ -1466,6 +1473,13 @@ function closeModal() {
   }
 }
 window.addEventListener('popstate', () => {
+  const isFilterSheetOpen = document.getElementById('filter-sheet')?.classList.contains('open');
+  if (isFilterSheetOpen) {
+    _filterHistoryPushed = false;
+    document.getElementById('filter-sheet-overlay')?.classList.remove('open');
+    document.getElementById('filter-sheet')?.classList.remove('open');
+    return;
+  }
   const formView = document.getElementById('view-form');
   const overlay  = document.getElementById('modal-overlay');
   const isFormOpen  = !formView.classList.contains('hide');

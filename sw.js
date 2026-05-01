@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reading-notes-v20';
+const CACHE_NAME = 'reading-notes-v21';
 
 const PRECACHE_URLS = [
   '/Reading-Notes/',
