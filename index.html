@@ -256,7 +256,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   line-height:1.7;transition:border-color .15s;
 }
 .form-inp:focus,.form-ta:focus{border-color:var(--borderMd)}
-.form-ta{resize:vertical;min-height:100px}
+.form-ta{resize:none;overflow:hidden;min-height:100px}
 .quote-toolbar{display:flex;gap:4px;margin-bottom:5px}
 .quote-toolbar-btn{font-size:11px;padding:3px 9px;background:var(--surface);color:var(--textSoft);border:1px solid var(--border);border-radius:6px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
 .quote-toolbar-btn:hover{background:var(--border);color:var(--textMid)}
@@ -1016,6 +1016,12 @@ function chipHTML(tag, size='sm', removable=false) {
   }</span>`;
 }
 
+function autoResizeTA(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
 function badgeHTML(val, map, defaultStyle) {
   const m = map[val] || defaultStyle || {};
   return `<span class="badge" style="background:${m.bg||'#eee'};color:${m.text||'#666'};border-color:${m.border||'#ccc'}">${esc(val)}</span>`;
@@ -1596,6 +1602,7 @@ function showForm(book=null, fromModal=false) {
   document.getElementById('f-synopsis').value= book?.synopsis || '';
   document.getElementById('f-review').value  = book?.review   || '';
   document.getElementById('f-quote').value   = book?.quote    || '';
+  ['f-synopsis','f-review','f-quote'].forEach(id => autoResizeTA(document.getElementById(id)));
 
 
 
@@ -2201,6 +2208,9 @@ document.getElementById('btn-cancel').addEventListener('click',()=>{
 });
 document.getElementById('btn-save').addEventListener('click',handleSave);
 document.getElementById('f-stars').addEventListener('input',updateStarsPreview);
+['f-synopsis','f-review','f-quote'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function(){ autoResizeTA(this); });
+});
 document.getElementById('search-inp').addEventListener('input',e=>{
   searchQ=e.target.value; currentPage=1; renderGrid();
 });
