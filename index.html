@@ -1315,6 +1315,7 @@ function openModal(id) {
   document.body.style.position = 'fixed';
   document.body.style.top = `-${_bodyScrollY}px`;
   document.body.style.width = '100%';
+  document.querySelector('.hdr').style.display = 'none';
   history.pushState({modal:true}, '');
   _modalHistoryPushed = true;
 }
@@ -1324,6 +1325,7 @@ function closeModal() {
   document.body.style.position = '';
   document.body.style.top = '';
   document.body.style.width = '';
+  document.querySelector('.hdr').style.display = '';
   window.scrollTo(0, _bodyScrollY);
   if (_modalHistoryPushed) {
     _modalHistoryPushed = false;
@@ -1452,6 +1454,7 @@ function showForm(book=null) {
   setSaveState('idle');
 
   switchView('form');
+  window.scrollTo(0, 0);
 }
 
 /* Custom selector helpers */
