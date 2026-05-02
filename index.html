@@ -925,6 +925,18 @@ let tagGroups = [
   {key:'angst',    label:'虐度結局', tags:['超虐','有虐','無虐','升級','BE','HE']},
 ];
 
+/* 預設標籤快照，用於區分自訂 vs 內建 */
+const DEFAULT_TAGS = {};
+tagGroups.forEach(g => { DEFAULT_TAGS[g.key] = new Set(g.tags); });
+
+function saveCustomTags() {
+  const custom = {};
+  tagGroups.forEach(g => {
+    custom[g.label] = g.tags.filter(t => !DEFAULT_TAGS[g.key].has(t));
+  });
+  try { localStorage.setItem('customTags', JSON.stringify(custom)); } catch(e) {}
+}
+
 let books = [
   {id:1,title:'渡厄',author:'楊溯',time:'古代',length:'長篇',
    types:['正劇','鬼怪','驚悚恐怖','年下','師徒','HE','有虐','仙俠修真'],
@@ -963,6 +975,19 @@ let books = [
   try {
     const stored = localStorage.getItem('books');
     if (stored) books = JSON.parse(stored);
+  } catch(e) {}
+})();
+
+// Merge custom tags from localStorage
+(function(){
+  try {
+    const stored = localStorage.getItem('customTags');
+    if (!stored) return;
+    const custom = JSON.parse(stored);
+    tagGroups = tagGroups.map(g => {
+      const extra = (custom[g.label] || []).filter(t => t && !g.tags.includes(t));
+      return extra.length ? {...g, tags: [...g.tags, ...extra]} : g;
+    });
   } catch(e) {}
 })();
 
@@ -1828,6 +1853,7 @@ function renderTagAccordion() {
       e.stopPropagation();
       const gk=el.dataset.delgk, tag=el.dataset.deltag;
       tagGroups=tagGroups.map(g=>g.key===gk?{...g,tags:g.tags.filter(t=>t!==tag)}:g);
+      saveCustomTags();
       formSelectedTypes=formSelectedTypes.filter(t=>t!==tag);
       refreshAccordionGroup(gk);
       renderSelectedChipsTray();
@@ -1895,6 +1921,7 @@ function refreshAccordionGroup(gk) {
       e.stopPropagation();
       const dgk=el.dataset.delgk, tag=el.dataset.deltag;
       tagGroups=tagGroups.map(g=>g.key===dgk?{...g,tags:g.tags.filter(t=>t!==tag)}:g);
+      saveCustomTags();
       formSelectedTypes=formSelectedTypes.filter(t=>t!==tag);
       refreshAccordionGroup(dgk);
       renderSelectedChipsTray();
@@ -1914,6 +1941,7 @@ function addTagToGroup(gk, raw) {
   const v=(raw||'').trim();
   if (!v) return;
   tagGroups=tagGroups.map(g=>g.key===gk&&!g.tags.includes(v)?{...g,tags:[...g.tags,v]}:g);
+  saveCustomTags();
   if (!formSelectedTypes.includes(v)) formSelectedTypes.push(v);
   refreshAccordionGroup(gk);
   renderSelectedChipsTray();
