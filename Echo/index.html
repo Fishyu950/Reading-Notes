@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Echo</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+:root {
+  /* Base */
+  --bg:        #f5f3ef;
+  --bg2:       #edeae4;
+  --white:     #ffffff;
+  --border:    #e2ddd5;
+
+  /* Primary — Bright orange yellow */
+  --primary:      #f5a623;
+  --primary-dark: #e8961a;
+  --primary-bg:   #fff4e0;
+
+  /* Hint — Warm olive/khaki (#C6C09C tone) */
+  --hint:        #8a8260;
+  --hint-dark:   #6b6448;
+  --hint-bg:     #f2f0e6;
+  --hint-border: #d6d0b4;
+
+  /* Ink */
+  --ink:  #2a2520;
+  --ink2: #5c5650;
+  --ink3: #9a948c;
+  --ink4: #c8c2b8;
+
+  /* Category palette — from color chart, harmonised */
+  --cat-ivory:      #8c8478; /* 全部 — warm grey */
+  --cat-ivory-bg:   #f0ede8;
+  --cat-nude:       #b8906e; /* 社群 — nude */
+  --cat-nude-bg:    #f5ece2;
+  --cat-rose:       #b87878; /* 信箱 — dusty rose */
+  --cat-rose-bg:    #f5e8e8;
+  --cat-sage:       #7a9e82; /* 金融 — sage */
+  --cat-sage-bg:    #e8f0ea;
+  --cat-blue:       #7892a8; /* 購物 — baby blue */
+  --cat-blue-bg:    #e8eff5;
+  --cat-mauve:      #9e7a9e; /* 工作 — muted mauve (sage+rose blend) */
+  --cat-mauve-bg:   #f0e8f0;
+  --cat-terracotta: #a87860; /* 娛樂 — terracotta (nude darker) */
+  --cat-terra-bg:   #f0e8e0;
+  --cat-stone:      #9a9488; /* 其他 — stone */
+  --cat-stone-bg:   #eeece8;
+
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* Poppins for all Latin/numbers */
+input, button, .poppins,
+.logo-wordmark, .header-name, .section-title, .list-count,
+.entry-platform, .entry-account, .entry-badge,
+.stat-value, .nav-title, .page-btn, .page-info,
+.detail-platform, .detail-block-value, .detail-hint-value,
+.tab-btn, .btn-primary, .btn-save, .btn-edit-detail,
+.field-label, .edit-field-label, .form-card-title,
+.delete-btn, .detail-block-label, .detail-cat-badge {
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+
+.mi {
+  font-family: 'Material Icons Round';
+  font-style: normal; font-size: 20px;
+  line-height: 1; vertical-align: middle;
+  user-select: none; display: inline-block;
+}
+
+.screen { display:none; min-height:100vh; flex-direction:column; }
+.screen.active { display:flex; }
+
+/* ════ LOGIN ════ */
+#loginScreen {
+  background: var(--bg);
+  align-items: center; justify-content: center;
+  padding: 48px 24px 40px;
+}
+
+.login-logo {
+  text-align: center; margin-bottom: 40px;
+  animation: fadeDown 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+.logo-circle {
+  width: 80px; height: 80px;
+  background: var(--primary); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 24px rgba(245,166,35,0.4);
+}
+.logo-circle .mi { font-size: 38px; color: white; }
+
+.logo-wordmark { font-size: 30px; font-weight: 700; color: var(--ink); letter-spacing: 2px; }
+.logo-sub { font-size: 13px; color: var(--ink3); margin-top: 4px; font-family: 'Noto Sans TC', sans-serif; }
+
+.login-card {
+  width: 100%; background: var(--white);
+  border-radius: var(--radius-xl); padding: 28px 24px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.6s 0.1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.tab-row {
+  display: flex; background: var(--bg);
+  border-radius: var(--radius-md); padding: 4px; gap: 4px; margin-bottom: 24px;
+}
+.tab-btn {
+  flex:1; padding:10px; border:none; background:none;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; color: var(--ink3);
+  cursor: pointer; transition: all 0.2s;
+}
+.tab-btn.active { background: var(--white); color: var(--ink); box-shadow: var(--shadow-sm); }
+
+.field-label { font-size: 12px; font-weight: 500; color: var(--ink2); margin-bottom: 7px; display: block; }
+
+.field-wrap { position: relative; margin-bottom: 14px; }
+.field-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink4); }
+
+.field-input {
+  width: 100%; padding: 13px 14px 13px 42px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+  font-size: 14px; color: var(--ink); outline: none;
+  transition: all 0.2s; -webkit-appearance: none;
+}
+.field-input:focus { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 3px rgba(245,166,35,0.15); }
+.field-input::placeholder { color: var(--ink4); }
+
+.err-msg { font-size: 12px; color: #b85a5a; margin-bottom: 10px; min-height: 16px; }
+
+.btn-primary {
+  width: 100%; padding: 15px; background: var(--primary); border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; color: white;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(245,166,35,0.35);
+}
+.btn-primary:active { transform: scale(0.98); filter: brightness(0.95); }
+
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+.login-note { text-align: center; font-size: 12px; color: var(--ink3); margin-top: 18px; line-height: 1.7; font-family: 'Noto Sans TC', sans-serif; }
+
+/* ════ MAIN ════ */
+#mainScreen { background: var(--bg); padding-bottom: 90px; }
+
+.main-header {
+  padding: 24px 20px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-name { font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+
+.avatar-btn {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; font-family: 'Poppins', sans-serif;
+  color: white; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245,166,35,0.35); flex-shrink: 0; overflow: hidden;
+}
+
+.search-section { padding: 0 20px 16px; }
+.search-wrap {
+  display: flex; align-items: center;
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 50px; padding: 0 16px; gap: 10px;
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+.search-wrap .mi { color: var(--ink3); }
+.search-input {
+  flex: 1; padding: 13px 0; border: none; background: none;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+  font-size: 14px; color: var(--ink); outline: none;
+}
+.search-input::placeholder { color: var(--ink4); }
+
+.cat-section { padding: 0 20px 16px; }
+.section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+.list-count { font-size: 13px; color: var(--primary-dark); font-weight: 500; }
+
+.cat-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; -webkit-overflow-scrolling: touch; touch-action: pan-x; }
+.cat-scroll::-webkit-scrollbar { display: none; }
+
+.cat-chip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 50px; font-size: 13px; color: var(--ink2); cursor: pointer;
+  transition: all 0.18s; font-weight: 500; white-space: nowrap;
+  box-shadow: var(--shadow-sm); font-family: 'Noto Sans TC', sans-serif;
+}
+.cat-chip .mi { font-size: 16px; }
+.cat-chip.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+.list-section { padding: 0 20px; }
+
+.entry-card {
+  background: var(--white); border-radius: var(--radius-lg); padding: 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: all 0.18s; border: 1.5px solid transparent;
+  animation: fadeUp 0.3s cubic-bezier(.16,1,.3,1) both;
+}
+.entry-card:active { transform: scale(0.98); border-color: var(--border); }
+
+.entry-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.entry-icon {
+  width: 44px; height: 44px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.entry-info { flex: 1; min-width: 0; }
+.entry-platform {
+  font-size: 15px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.entry-account {
+  font-size: 12px; color: var(--ink3); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.entry-badge {
+  flex-shrink: 0; padding: 4px 10px; border-radius: 50px;
+  font-size: 11px; font-weight: 600;
+}
+
+/* Hint row — warm olive */
+.entry-hint-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--hint-bg); border: 1px solid var(--hint-border);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+}
+.entry-hint-row .mi { color: var(--hint); font-size: 16px; flex-shrink: 0; }
+.entry-hint-text {
+  font-size: 13px; color: var(--hint-dark);
+  word-break: break-all; line-height: 1.4;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 16px 0 8px;
+}
+.page-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; color: var(--ink2);
+  font-size: 14px; font-weight: 500;
+}
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.page-nav {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; color: var(--ink2);
+}
+.page-nav .mi { font-size: 18px; }
+.page-info { font-size: 13px; color: var(--ink3); padding: 0 4px; }
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; background: var(--white);
+  border-top: 1px solid var(--border); display: flex; align-items: center;
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 20;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; cursor: pointer; padding: 6px 0; color: var(--ink4);
+  transition: color 0.15s; font-size: 10px; font-weight: 500;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.nav-item.active { color: var(--primary-dark); }
+.nav-item .mi { font-size: 22px; }
+.nav-fab {
+  flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--primary); border: none;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(245,166,35,0.45);
+  cursor: pointer; transition: all 0.18s; margin: 0 8px;
+}
+.nav-fab:active { transform: scale(0.92); }
+.nav-fab .mi { color: white; font-size: 26px; }
+
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon-wrap {
+  width: 80px; height: 80px; background: var(--primary-bg); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+}
+.empty-icon-wrap .mi { font-size: 36px; color: var(--primary); }
+.empty-title { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; color: var(--ink3); line-height: 1.6; font-family: 'Noto Sans TC', sans-serif; }
+
+/* ════ EDIT ════ */
+#editScreen { background: var(--bg); }
+
+.nav-bar {
+  display: flex; align-items: center; padding: 16px; gap: 12px;
+  background: var(--white); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.back-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--bg); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink2); transition: all 0.15s; flex-shrink: 0;
+}
+.back-btn:active { background: var(--bg2); }
+.nav-title { font-size: 17px; font-weight: 700; flex: 1; font-family: 'Poppins', 'Noto Sans TC', sans-serif; }
+.delete-btn {
+  background: #f5eaea; border: none; color: #b85a5a; font-size: 13px; font-weight: 600;
+  cursor: pointer; padding: 7px 14px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 4px; transition: all 0.15s;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+
+.edit-body { padding: 20px 16px 120px; }
+
+.form-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+}
+.form-card-title {
+  font-size: 11px; font-weight: 700; color: var(--ink3); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 6px;
+  text-transform: uppercase; letter-spacing: 1px;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+.form-card-title .mi { font-size: 16px; color: var(--primary); }
+
+.edit-field-label { font-size: 12px; font-weight: 500; color: var(--ink2); margin-bottom: 7px; display: block; font-family: 'Poppins', 'Noto Sans TC', sans-serif; }
+.edit-field-wrap { position: relative; margin-bottom: 14px; }
+.edit-field-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink4); font-size: 18px; }
+
+.edit-input {
+  width: 100%; padding: 12px 12px 12px 42px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+  font-size: 14px; color: var(--ink); outline: none;
+  transition: all 0.2s; -webkit-appearance: none;
+}
+.edit-input:focus { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+.edit-input::placeholder { color: var(--ink4); }
+
+/* Hint input — warm olive/khaki #C6C09C tone */
+.hint-input {
+  background: var(--hint-bg) !important;
+  border-color: var(--hint-border) !important;
+  color: var(--hint-dark) !important;
+}
+.hint-input:focus {
+  border-color: #b8b28a !important;
+  box-shadow: 0 0 0 3px rgba(198,192,156,0.2) !important;
+}
+.hint-input::placeholder { color: #c6c09c !important; }
+
+.hint-note {
+  font-size: 11px; color: var(--ink3); margin-top: -8px; margin-bottom: 14px;
+  line-height: 1.6; display: flex; align-items: flex-start; gap: 4px;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+.hint-note .mi { font-size: 13px; color: var(--hint); margin-top: 1px; flex-shrink: 0; }
+.hint-note span { color: var(--hint); font-weight: 500; }
+
+.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.emoji-opt {
+  aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--bg);
+  border: 1.5px solid var(--border); display: flex; align-items: center;
+  justify-content: center; font-size: 18px; cursor: pointer; transition: all 0.15s;
+}
+.emoji-opt.selected { border-color: var(--primary); background: var(--primary-bg); }
+.emoji-opt:active { transform: scale(0.9); }
+
+.cat-chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.cat-edit-chip {
+  display: flex; align-items: center; gap: 5px; padding: 8px 14px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  border-radius: 50px; font-size: 13px; color: var(--ink2); cursor: pointer;
+  transition: all 0.15s; font-family: 'Poppins', 'Noto Sans TC', sans-serif; font-weight: 500;
+}
+.cat-edit-chip .mi { font-size: 16px; }
+.cat-edit-chip.selected { background: var(--primary-bg); border-color: var(--primary); color: var(--primary-dark); }
+
+.save-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; padding: 16px;
+  background: var(--white); border-top: 1px solid var(--border); z-index: 10;
+}
+.btn-save {
+  width: 100%; padding: 15px; background: var(--primary); border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; color: white; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245,166,35,0.35); transition: all 0.18s;
+}
+.btn-save:active { transform: scale(0.98); filter: brightness(0.95); }
+
+/* ════ DETAIL ════ */
+#detailScreen { background: var(--bg); }
+
+.detail-hero {
+  margin: 16px; border-radius: var(--radius-xl); padding: 24px;
+  display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-md);
+}
+.detail-icon {
+  width: 60px; height: 60px; border-radius: var(--radius-lg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; flex-shrink: 0; background: rgba(255,255,255,0.55);
+}
+.detail-platform { font-size: 22px; font-weight: 700; color: var(--ink); }
+.detail-cat-badge {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 50px; margin-top: 6px;
+  background: rgba(255,255,255,0.55);
+}
+.detail-cat-badge .mi { font-size: 13px; }
+
+.detail-body { padding: 0 16px 140px; }
+.detail-block {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 16px 18px; margin-bottom: 10px; box-shadow: var(--shadow-sm);
+}
+.detail-block-label {
+  font-size: 11px; font-weight: 600; color: var(--ink3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 5px;
+}
+.detail-block-label .mi { font-size: 15px; }
+.detail-block-value {
+  font-size: 15px; color: var(--ink); word-break: break-all; line-height: 1.5;
+}
+.detail-hint-block {
+  background: var(--hint-bg); border: 1.5px solid var(--hint-border);
+  border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 10px;
+}
+.detail-hint-value {
+  font-size: 15px; color: var(--hint-dark);
+  word-break: break-all; line-height: 1.5;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+
+.detail-actions {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; padding: 16px;
+  background: var(--white); border-top: 1px solid var(--border);
+  display: flex; gap: 10px; z-index: 10;
+}
+.btn-edit-detail {
+  flex: 1; padding: 14px; background: var(--primary); border: none;
+  border-radius: var(--radius-md); color: white;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245,166,35,0.3);
+  display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s;
+}
+.btn-del-detail {
+  width: 52px; height: 52px; background: #f5eaea; border: 1.5px solid #e8c8c8;
+  border-radius: var(--radius-md); color: #b85a5a; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.btn-del-detail .mi { font-size: 22px; }
+
+/* Profile screen */
+#profileScreen { background: var(--bg); }
+.profile-body { padding: 24px 20px 100px; }
+.profile-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+}
+.profile-avatar-big {
+  width: 72px; height: 72px; border-radius: 50%; background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: white;
+  font-family: 'Poppins', sans-serif; margin: 0 auto 12px;
+  box-shadow: 0 6px 20px rgba(245,166,35,0.35);
+}
+.profile-username { text-align: center; font-size: 20px; font-weight: 700; color: var(--ink); font-family: 'Poppins', sans-serif; }
+.profile-meta { text-align: center; font-size: 13px; color: var(--ink3); margin-top: 4px; font-family: 'Noto Sans TC', sans-serif; }
+.profile-stat-row { display: flex; gap: 10px; margin-top: 16px; }
+.profile-stat {
+  flex: 1; background: var(--bg); border-radius: var(--radius-md);
+  padding: 12px; text-align: center;
+}
+.profile-stat-val { font-size: 22px; font-weight: 700; color: var(--ink); font-family: 'Poppins', sans-serif; }
+.profile-stat-lbl { font-size: 11px; color: var(--ink3); margin-top: 2px; font-family: 'Noto Sans TC', sans-serif; }
+.profile-row {
+  display: flex; align-items: center; gap: 12px; padding: 14px 0;
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: opacity 0.15s;
+}
+.profile-row:last-child { border-bottom: none; }
+.profile-row:active { opacity: 0.6; }
+.profile-row-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-row-icon .mi { font-size: 20px; color: var(--ink2); }
+.profile-row-label { flex: 1; font-size: 15px; color: var(--ink); font-family: 'Noto Sans TC', sans-serif; }
+.profile-row-arrow .mi { font-size: 18px; color: var(--ink4); }
+.logout-row .profile-row-label { color: #b85a5a; }
+.logout-row .profile-row-icon .mi { color: #b85a5a; }
+
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(18px)}  to{opacity:1;transform:translateY(0)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* Back to welcome button */
+.back-to-welcome-btn {
+  width:38px; height:38px; border-radius:50%;
+  background:var(--white); border:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--ink2); box-shadow:var(--shadow-sm);
+  transition:all 0.15s;
+}
+.back-to-welcome-btn:active { background:var(--bg2); }
+
+/* Auto-expand textarea */
+.edit-textarea {
+  resize:none; overflow:hidden; min-height:44px;
+  line-height:1.6; padding-top:11px; padding-bottom:11px;
+}
+
+/* Letter spacing 10% on all content text */
+.entry-platform, .entry-account, .entry-hint-text,
+.detail-platform, .detail-block-value, .detail-hint-value,
+.header-name, .section-title, .nav-title,
+.edit-input, .field-input, .search-input,
+.feature-text-title, .feature-text-sub,
+.pin-title, .pin-sub, .pin-user-name,
+.forgot-title, .forgot-desc, .forgot-warning-text,
+.profile-username, .profile-meta, .profile-row-label {
+  letter-spacing: 0.06em;
+}
+
+/* Force Poppins on detail value and hint (fix screenshot issue) */
+.detail-block-value, .detail-hint-value,
+.entry-platform, .entry-account, .entry-badge,
+.entry-hint-text, .list-count, .section-title {
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+}
+
+
+/* WELCOME */
+#welcomeScreen {
+  background:
+    radial-gradient(ellipse at 28% 18%, rgba(245,166,35,0.07) 0%, transparent 52%),
+    radial-gradient(ellipse at 74% 82%, rgba(138,130,96,0.06) 0%, transparent 48%),
+    var(--bg);
+  align-items:center; justify-content:center; padding:88px 40px 68px;
+}
+.welcome-logo { text-align:center; margin-bottom:68px; animation:fadeDown 0.7s cubic-bezier(.16,1,.3,1) both; }
+.logo-circle { width:72px; height:72px; background:none; border:1.5px solid rgba(245,166,35,0.55); border-radius:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 26px; box-shadow:none; }
+.logo-circle .mi { font-size:32px; color:var(--primary); }
+.logo-wordmark { font-family:'Poppins',sans-serif; font-size:36px; font-weight:300; color:var(--ink); letter-spacing:10px; position:relative; display:inline-block; }
+.logo-wordmark::before,
+.logo-wordmark::after {
+  content:''; position:absolute; inset:-18px -24px;
+  border:1px solid rgba(245,166,35,0.38); border-radius:18px;
+  opacity:0; pointer-events:none;
+  animation:echoRipple 3.2s ease-out infinite;
+}
+.logo-wordmark::after { animation-delay:1.6s; }
+@keyframes echoRipple {
+  0%   { transform:scale(0.86); opacity:0.6; }
+  65%  { opacity:0.1; }
+  100% { transform:scale(2.3);  opacity:0; }
+}
+.logo-sub { font-family:'Poppins',sans-serif; font-size:13px; font-style:italic; font-weight:300; color:var(--ink3); margin-top:16px; letter-spacing:0.07em; line-height:1.8; }
+.welcome-card { width:100%; animation:fadeUp 0.7s 0.15s cubic-bezier(.16,1,.3,1) both; }
+.google-signin-btn { width:100%; padding:16px 20px; background:transparent; border:1px solid rgba(42,37,32,0.2); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; gap:14px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:400; letter-spacing:0.04em; color:var(--ink2); cursor:pointer; transition:all 0.2s; box-shadow:none; }
+.google-signin-btn:active { transform:scale(0.98); background:rgba(42,37,32,0.04); }
+.welcome-note { text-align:center; font-size:11px; color:var(--ink4); margin-top:32px; line-height:2; letter-spacing:0.03em; }
+
+/* PIN */
+#setPinScreen,#confirmPinScreen,#enterPinScreen,#forgotPinScreen { background:var(--bg); align-items:center; justify-content:center; padding:48px 28px; }
+.pin-header { text-align:center; margin-bottom:28px; }
+.pin-icon-wrap { width:64px; height:64px; border-radius:20px; background:var(--primary-bg); border:2px solid rgba(245,166,35,0.3); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.pin-icon-wrap .mi { font-size:30px; color:var(--primary-dark); }
+.pin-title { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+.pin-sub { font-size:13px; color:var(--ink3); line-height:1.6; }
+.pin-user-badge { display:inline-flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:6px 14px; margin-bottom:32px; box-shadow:var(--shadow-sm); }
+.pin-user-badge .mi { font-size:16px; color:var(--ink3); }
+.pin-user-name { font-family:'Poppins',sans-serif; font-size:13px; font-weight:500; color:var(--ink2); }
+.pin-dots { display:flex; gap:16px; justify-content:center; margin-bottom:12px; }
+.pin-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--border); background:var(--white); transition:all 0.15s; }
+.pin-dot.filled { background:var(--primary); border-color:var(--primary); transform:scale(1.1); }
+.pin-dot.error { background:#b85a5a; border-color:#b85a5a; animation:shake 0.3s; }
+.pin-err { font-size:13px; color:#b85a5a; min-height:20px; text-align:center; margin-bottom:20px; font-family:'Poppins',sans-serif; }
+.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:280px; margin:0 auto; }
+.pin-key { aspect-ratio:1; border-radius:50%; background:var(--white); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-size:22px; font-weight:600; color:var(--ink); cursor:pointer; transition:all 0.15s; box-shadow:var(--shadow-sm); user-select:none; }
+.pin-key:active { background:var(--primary-bg); border-color:var(--primary); transform:scale(0.93); }
+.pin-key.del { background:none; border:none; box-shadow:none; }
+.pin-key.del .mi { font-size:24px; color:var(--ink3); }
+.pin-key.empty { background:none; border:none; box-shadow:none; cursor:default; }
+.pin-forgot { text-align:center; margin-top:24px; }
+.pin-forgot-btn { background:none; border:none; font-family:'Poppins',sans-serif; font-size:13px; color:var(--ink3); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+
+/* FORGOT */
+.forgot-card { width:100%; background:var(--white); border-radius:var(--radius-xl); padding:28px 24px; box-shadow:var(--shadow-lg); animation:fadeUp 0.5s cubic-bezier(.16,1,.3,1) both; }
+.forgot-icon-wrap { width:56px; height:56px; border-radius:18px; background:#f5eaea; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.forgot-icon-wrap .mi { font-size:28px; color:#b85a5a; }
+.forgot-title { font-family:'Poppins',sans-serif; font-size:20px; font-weight:700; color:var(--ink); text-align:center; margin-bottom:8px; }
+.forgot-desc { font-size:13px; color:var(--ink3); text-align:center; line-height:1.7; margin-bottom:20px; }
+.forgot-warning { background:#fff8e8; border:1px solid #f5d98a; border-radius:var(--radius-md); padding:12px 14px; display:flex; align-items:flex-start; gap:8px; margin-bottom:24px; }
+.forgot-warning .mi { font-size:18px; color:#c8860a; flex-shrink:0; margin-top:1px; }
+.forgot-warning-text { font-size:12px; color:#8a6010; line-height:1.6; }
+.btn-google-reset { width:100%; padding:15px; background:var(--primary); border:none; border-radius:var(--radius-md); font-family:'Poppins',sans-serif; font-size:15px; font-weight:700; color:white; cursor:pointer; box-shadow:0 4px 16px rgba(245,166,35,0.35); transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; }
+.btn-cancel { width:100%; padding:14px; background:none; border:1.5px solid var(--border); border-radius:var(--radius-md); font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; color:var(--ink2); cursor:pointer; }
+
+/* ════ SYNC UI ════ */
+.sync-overlay { position:fixed; inset:0; background:rgba(42,37,32,0.5); display:flex; align-items:center; justify-content:center; z-index:100; backdrop-filter:blur(3px); }
+.sync-overlay.hidden { display:none; }
+.sync-card { background:var(--white); border-radius:var(--radius-xl); padding:28px 36px; text-align:center; box-shadow:var(--shadow-lg); min-width:180px; }
+.sync-spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
+.sync-label { font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; color:var(--ink2); }
+.toast { position:fixed; bottom:110px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--ink); color:white; padding:10px 22px; border-radius:50px; font-family:'Poppins',sans-serif; font-size:13px; font-weight:500; opacity:0; transition:all 0.25s; z-index:200; white-space:nowrap; pointer-events:none; letter-spacing:0.03em; max-width:90vw; text-align:center; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.success { background:#4a7c59; }
+.toast.error { background:#b85a5a; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ════ WELCOME ════ -->
+<div id="welcomeScreen" class="screen active">
+  <div class="welcome-logo">
+    <div class="logo-circle"><span class="mi">lock</span></div>
+    <div class="logo-wordmark">Echo</div>
+    <div class="logo-sub">Lost in mind, found in Echo.</div>
+  </div>
+  <div class="welcome-card">
+    <button class="google-signin-btn" onclick="googleLogin()">
+      <svg class="google-icon-svg" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      使用 Google 帳號登入
+    </button>
+    <p class="welcome-note">登入即表示你同意 Echo 使用 Google Sheets<br>儲存你的個人資料於你的帳號空間</p>
+  </div>
+</div>
+
+<!-- ════ SET PIN ════ -->
+<div id="setPinScreen" class="screen">
+  <div class="pin-header">
+    <div class="pin-icon-wrap"><span class="mi">pin</span></div>
+    <div class="pin-title">設定 PIN 碼</div>
+    <div class="pin-sub">設定一組 4 位數 PIN 碼<br>每次開啟 Echo 時使用</div>
+  </div>
+  <div class="pin-user-badge">
+    <span class="mi">account_circle</span>
+    <span class="pin-user-name" id="setPinUserName">user@gmail.com</span>
+  </div>
+  <div class="pin-dots" id="setPinDots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-err" id="setPinErr"></div>
+  <div class="pin-keypad" id="setPinKeypad"></div>
+</div>
+
+<!-- ════ CONFIRM PIN ════ -->
+<div id="confirmPinScreen" class="screen">
+  <div class="pin-header">
+    <div class="pin-icon-wrap"><span class="mi">check_circle</span></div>
+    <div class="pin-title">再次確認</div>
+    <div class="pin-sub">請再輸入一次 PIN 碼<br>確認設定正確</div>
+  </div>
+  <div class="pin-user-badge">
+    <span class="mi">account_circle</span>
+    <span class="pin-user-name" id="confirmPinUserName">user@gmail.com</span>
+  </div>
+  <div class="pin-dots" id="confirmPinDots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-err" id="confirmPinErr"></div>
+  <div class="pin-keypad" id="confirmPinKeypad"></div>
+</div>
+
+<!-- ════ ENTER PIN ════ -->
+<div id="enterPinScreen" class="screen">
+  <div style="position:absolute;top:20px;left:20px;">
+    <button class="back-to-welcome-btn" onclick="showScreen('welcomeScreen')">
+      <span class="mi">arrow_back</span>
+    </button>
+  </div>
+  <div class="pin-header">
+    <div class="pin-icon-wrap"><span class="mi">lock_open</span></div>
+    <div class="pin-title">輸入 PIN 碼</div>
+    <div class="pin-sub">歡迎回來</div>
+  </div>
+  <div class="pin-user-badge">
+    <span class="mi">account_circle</span>
+    <span class="pin-user-name" id="enterPinUserName">user@gmail.com</span>
+  </div>
+  <div class="pin-dots" id="enterPinDots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-err" id="enterPinErr"></div>
+  <div class="pin-keypad" id="enterPinKeypad"></div>
+  <div class="pin-forgot">
+    <button class="pin-forgot-btn" onclick="showForgotPin()">忘記 PIN 碼？</button>
+  </div>
+</div>
+
+<!-- ════ FORGOT PIN ════ -->
+<div id="forgotPinScreen" class="screen">
+  <div class="forgot-card">
+    <div class="forgot-icon-wrap"><span class="mi">lock_reset</span></div>
+    <div class="forgot-title">忘記 PIN 碼？</div>
+    <div class="forgot-desc">重新用 Google 帳號登入<br>即可設定新的 PIN 碼</div>
+    <div class="forgot-warning">
+      <span class="mi">warning</span>
+      <div class="forgot-warning-text">重新登入不會刪除你的資料，你的帳號暗號紀錄都會保留。</div>
+    </div>
+    <button class="btn-google-reset" onclick="forgotPinGoogleLogin()">
+      <svg width="20" height="20" viewBox="0 0 24 24">
+        <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="white" opacity=".8" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="white" opacity=".8" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="white" opacity=".8" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      重新用 Google 登入
+    </button>
+    <button class="btn-cancel" onclick="showScreen('enterPinScreen')">取消，返回</button>
+  </div>
+</div>
+
+<!-- ════ MAIN ════ -->
+<div id="mainScreen" class="screen">
+  <div class="main-header">
+    <div class="header-name" id="greetingName">使用者</div>
+    <div class="avatar-btn" id="userAvatar" onclick="showProfile()">U</div>
+  </div>
+  <div class="search-section">
+    <div class="search-wrap">
+      <span class="mi">search</span>
+      <input class="search-input" id="searchInput" placeholder="搜尋平台或帳號…" oninput="onSearch()">
+    </div>
+  </div>
+  <div class="cat-section">
+    <div class="section-row">
+      <div class="section-title">我的帳號</div>
+      <div class="list-count" id="listCount">0 筆</div>
+    </div>
+    <div class="cat-scroll" id="catScroll"></div>
+  </div>
+  <div class="list-section" id="listArea"></div>
+  <div id="paginationArea"></div>
+  <div class="bottom-nav">
+    <div class="nav-item active" id="navHome" onclick="switchNav('home')">
+      <span class="mi">home</span><span>主頁</span>
+    </div>
+    <div style="flex:0.5"></div>
+    <button class="nav-fab" onclick="openEdit(null)"><span class="mi">add</span></button>
+    <div style="flex:0.5"></div>
+    <div class="nav-item" id="navProfile" onclick="switchNav('profile')">
+      <span class="mi">person</span><span>帳號</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ EDIT ════ -->
+<div id="editScreen" class="screen">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="goBack()"><span class="mi">arrow_back</span></button>
+    <div class="nav-title" id="editTitle">新增紀錄</div>
+    <button class="delete-btn" id="deleteBtn" onclick="deleteEntry()" style="display:none">
+      <span class="mi">delete</span>刪除
+    </button>
+  </div>
+  <div class="edit-body">
+    <div class="form-card">
+      <div class="form-card-title"><span class="mi">emoji_emotions</span>選擇圖示</div>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-card-title"><span class="mi">info</span>基本資訊</div>
+      <label class="edit-field-label">平台 / 網站名稱</label>
+      <div class="edit-field-wrap">
+        <span class="mi edit-field-icon">language</span>
+        <input class="edit-input" id="fPlatform" type="text" placeholder="例：Gmail、Line、Netflix">
+      </div>
+      <label class="edit-field-label">帳號 / Email</label>
+      <div class="edit-field-wrap">
+        <span class="mi edit-field-icon">alternate_email</span>
+        <input class="edit-input" id="fAccount" type="text" placeholder="登入用的帳號">
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="form-card-title"><span class="mi">category</span>分類</div>
+      <div class="cat-chips-wrap" id="catSelectRow"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-card-title"><span class="mi">lightbulb</span>暗號提示</div>
+      <label class="edit-field-label">暗號</label>
+      <div class="edit-field-wrap">
+        <span class="mi edit-field-icon" style="color:var(--hint)">visibility_off</span>
+        <input class="edit-input hint-input" id="fHint" type="text" placeholder="只有你看得懂的線索…">
+      </div>
+      <div class="hint-note">
+        <span class="mi">info</span>
+        請填入<span>暗號或記憶提示</span>，切勿填入真實密碼
+      </div>
+      <label class="edit-field-label">備註</label>
+      <div class="edit-field-wrap">
+        <span class="mi edit-field-icon" style="top:14px;transform:none">notes</span>
+        <textarea class="edit-input edit-textarea" id="fNote" placeholder="其他補充（選填）" rows="2" oninput="autoResize(this)"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="save-bar">
+    <button class="btn-save" onclick="saveEntry()">儲存紀錄</button>
+  </div>
+</div>
+
+<!-- ════ DETAIL ════ -->
+<div id="detailScreen" class="screen">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="goBack()"><span class="mi">arrow_back</span></button>
+    <div class="nav-title">紀錄詳情</div>
+  </div>
+  <div id="detailHero"></div>
+  <div class="detail-body" id="detailBody"></div>
+  <div class="detail-actions">
+    <button class="btn-edit-detail" onclick="openEditFromDetail()">
+      <span class="mi">edit</span>編輯
+    </button>
+    <button class="btn-del-detail" onclick="deleteFromDetail()">
+      <span class="mi">delete</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════ PROFILE ════ -->
+<div id="profileScreen" class="screen">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="switchNav('home')"><span class="mi">arrow_back</span></button>
+    <div class="nav-title">帳號設定</div>
+  </div>
+  <div class="profile-body">
+    <div class="profile-card">
+      <div class="profile-avatar-big" id="profileAvatarBig">U</div>
+      <div class="profile-username" id="profileUsername">使用者</div>
+      <div class="profile-meta" id="profileMeta">尚未同步至雲端</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-row" onclick="manualSync()">
+        <div class="profile-row-icon"><span class="mi">sync</span></div>
+        <div class="profile-row-label">立即同步 Google Sheets</div>
+        <div class="profile-row-arrow"><span class="mi">chevron_right</span></div>
+      </div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-row logout-row" onclick="doLogout()">
+        <div class="profile-row-icon"><span class="mi">logout</span></div>
+        <div class="profile-row-label">登出</div>
+        <div class="profile-row-arrow"><span class="mi">chevron_right</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" id="navHome2" onclick="switchNav('home')">
+      <span class="mi">home</span><span>主頁</span>
+    </div>
+    <div style="flex:0.5"></div>
+    <button class="nav-fab" onclick="openEdit(null)"><span class="mi">add</span></button>
+    <div style="flex:0.5"></div>
+    <div class="nav-item active" id="navProfile2">
+      <span class="mi">person</span><span>帳號</span>
+    </div>
+  </div>
+</div>
+
+<div id="syncOverlay" class="sync-overlay hidden">
+  <div class="sync-card">
+    <div class="sync-spinner"></div>
+    <div class="sync-label" id="syncLabel">正在同步資料…</div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+// ── CONFIG — replace with your Google Cloud OAuth 2.0 Client ID ──
+const GOOGLE_CLIENT_ID = '581562758769-lpbml8lt4qs0tamm4i68u41n2bupeqrd.apps.googleusercontent.com';
+// ── CONSTANTS ──
+const CATS = [
+  {name:'全部', icon:'apps',            color:'var(--cat-ivory)',      bg:'var(--cat-ivory-bg)'},
+  {name:'社群', icon:'people',          color:'var(--cat-nude)',        bg:'var(--cat-nude-bg)'},
+  {name:'信箱', icon:'mail',            color:'var(--cat-rose)',        bg:'var(--cat-rose-bg)'},
+  {name:'金融', icon:'account_balance', color:'var(--cat-sage)',        bg:'var(--cat-sage-bg)'},
+  {name:'購物', icon:'shopping_bag',    color:'var(--cat-blue)',        bg:'var(--cat-blue-bg)'},
+  {name:'工作', icon:'work',            color:'var(--cat-mauve)',       bg:'var(--cat-mauve-bg)'},
+  {name:'娛樂', icon:'sports_esports',  color:'var(--cat-terracotta)', bg:'var(--cat-terra-bg)'},
+  {name:'其他', icon:'more_horiz',      color:'var(--cat-stone)',       bg:'var(--cat-stone-bg)'},
+];
+const EMOJIS = ['🔑','💳','📧','🛒','💼','🎮','🏦','📱','🌐','🔒','⭐','🎵','📷','🚀','💡','🎯'];
+const PER_PAGE = 10;
+const DATA_PFX = 'echo_data_';
+const PIN_KEY = 'echo_pin_', USER_KEY = 'echo_current_user', SHEET_ID_KEY = 'echo_sheet_';
+const SHEET_NAME = 'EchoData';
+const SHEET_COLS = ['ID','平台','帳號','暗號','備註','分類','圖示','建立時間'];
+
+// ── STATE ──
+let currentUser=null, entries=[], editingId=null, detailId=null;
+let selectedCat='其他', selectedEmoji='🔑', activeCatFilter='全部';
+let currentPage=1, filteredCache=[];
+let currentPin='', setPinFirst='', pendingUser=null, forgotPinMode=false;
+let googleTokenClient=null, accessToken=null, tokenExpiry=0;
+
+// ── HELPERS ──
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const getUserData = u => JSON.parse(localStorage.getItem(DATA_PFX+u)||'[]');
+const saveUserData = (u,d) => localStorage.setItem(DATA_PFX+u, JSON.stringify(d));
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2);
+const getCat = name => CATS.find(c=>c.name===name)||CATS[CATS.length-1];
+
+// ── UI HELPERS ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showToast(msg, type=''){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(()=>{ el.className = 'toast'; }, 2500);
+}
+
+function showSyncOverlay(show, label='正在同步資料…'){
+  document.getElementById('syncOverlay').classList.toggle('hidden', !show);
+  if(label) document.getElementById('syncLabel').textContent = label;
+}
+
+function goBack(){ switchNav('home'); }
+
+function switchNav(tab){
+  if(tab==='home'){
+    showScreen('mainScreen'); renderList();
+    document.getElementById('navHome').classList.add('active');
+    document.getElementById('navProfile').classList.remove('active');
+  } else {
+    showProfile();
+    document.getElementById('navHome').classList.remove('active');
+    document.getElementById('navProfile').classList.add('active');
+  }
+}
+
+function showProfile(){
+  document.getElementById('profileAvatarBig').textContent = currentUser ? currentUser[0].toUpperCase() : 'U';
+  document.getElementById('profileUsername').textContent = currentUser || '使用者';
+  const sheetId = currentUser ? localStorage.getItem(SHEET_ID_KEY + currentUser) : null;
+  document.getElementById('profileMeta').textContent = sheetId ? '已連結 Google Sheets' : '尚未同步至雲端';
+  showScreen('profileScreen');
+}
+
+// ── GOOGLE AUTH ──
+function initGoogleAuth(){
+  if(typeof google === 'undefined' || !google.accounts){ setTimeout(initGoogleAuth, 200); return; }
+  googleTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/spreadsheets email profile',
+    callback: ()=>{},
+  });
+}
+
+function requestToken(prompt=''){
+  return new Promise((resolve, reject)=>{
+    if(!googleTokenClient){ reject(new Error('GSI not ready')); return; }
+    googleTokenClient.callback = (resp)=>{
+      if(resp.error){ reject(new Error(resp.error)); return; }
+      accessToken = resp.access_token;
+      tokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+      resolve(accessToken);
+    };
+    googleTokenClient.requestAccessToken({ prompt });
+  });
+}
+
+async function ensureToken(){
+  if(accessToken && Date.now() < tokenExpiry) return accessToken;
+  return requestToken('');
+}
+
+async function googleLogin(){
+  if(GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE'){
+    alert('尚未設定 Google Client ID\n\n請參閱說明，在 Google Cloud Console 建立 OAuth 用戶端並填入 GOOGLE_CLIENT_ID');
+    return;
+  }
+  if(!googleTokenClient){ showToast('Google 登入初始化中，請稍後', 'error'); return; }
+  try {
+    const token = await requestToken('select_account');
+    const resp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const info = await resp.json();
+    if(!info.email) throw new Error('no email');
+    const email = info.email;
+    pendingUser = email;
+    ['setPinUserName','confirmPinUserName','enterPinUserName'].forEach(id=>{
+      document.getElementById(id).textContent = email;
+    });
+    const storedPin = localStorage.getItem(PIN_KEY + email);
+    if(storedPin && !forgotPinMode){
+      buildKeypad('enterPinKeypad', enterPinPress);
+      showScreen('enterPinScreen');
+    } else {
+      localStorage.removeItem(PIN_KEY + email);
+      forgotPinMode = false;
+      currentPin=''; setPinFirst='';
+      updateDots('setPinDots', 0);
+      document.getElementById('setPinErr').textContent='';
+      buildKeypad('setPinKeypad', setPinPress);
+      showScreen('setPinScreen');
+    }
+  } catch(e){
+    showToast('Google 登入失敗，請再試一次', 'error');
+  }
+}
+
+function forgotPinGoogleLogin(){ forgotPinMode = true; googleLogin(); }
+
+// Build numeric keypad
+function buildKeypad(containerId, handler){
+  const keys = ['1','2','3','4','5','6','7','8','9','','0','del'];
+  document.getElementById(containerId).innerHTML = keys.map(k => {
+    if(k === 'del') return `<div class="pin-key del" onclick="${handler.name}('del')"><span class="mi">backspace</span></div>`;
+    if(k === '') return `<div class="pin-key empty"></div>`;
+    return `<div class="pin-key" onclick="${handler.name}('${k}')">${k}</div>`;
+  }).join('');
+}
+
+function updateDots(dotContainerId, count, isError=false){
+  document.querySelectorAll(`#${dotContainerId} .pin-dot`).forEach((d,i)=>{
+    d.className = 'pin-dot' + (i < count ? (isError ? ' error' : ' filled') : '');
+  });
+}
+
+// ── SET PIN ──
+function setPinPress(k){
+  const err = document.getElementById('setPinErr');
+  if(k === 'del'){ currentPin = currentPin.slice(0,-1); }
+  else if(currentPin.length < 4){ currentPin += k; }
+  updateDots('setPinDots', currentPin.length);
+  if(currentPin.length === 4){
+    setPinFirst = currentPin;
+    currentPin = '';
+    err.textContent = '';
+    updateDots('confirmPinDots', 0);
+    document.getElementById('confirmPinErr').textContent = '';
+    buildKeypad('confirmPinKeypad', confirmPinPress);
+    setTimeout(()=>showScreen('confirmPinScreen'), 200);
+  }
+}
+
+// ── CONFIRM PIN ──
+function confirmPinPress(k){
+  const err = document.getElementById('confirmPinErr');
+  if(k === 'del'){ currentPin = currentPin.slice(0,-1); }
+  else if(currentPin.length < 4){ currentPin += k; }
+  updateDots('confirmPinDots', currentPin.length);
+  if(currentPin.length === 4){
+    if(currentPin === setPinFirst){
+      // Save PIN and login
+      localStorage.setItem(PIN_KEY + pendingUser, currentPin);
+      localStorage.setItem(USER_KEY, pendingUser);
+      currentPin = ''; setPinFirst = '';
+      loginSuccess(pendingUser);
+    } else {
+      updateDots('confirmPinDots', 4, true);
+      err.textContent = 'PIN 碼不一致，請重新設定';
+      setTimeout(()=>{
+        currentPin = ''; setPinFirst = '';
+        updateDots('setPinDots', 0);
+        updateDots('confirmPinDots', 0);
+        err.textContent = '';
+        document.getElementById('setPinErr').textContent = '';
+        showScreen('setPinScreen');
+      }, 1000);
+    }
+  }
+}
+
+// ── ENTER PIN ──
+function enterPinPress(k){
+  const err = document.getElementById('enterPinErr');
+  if(k === 'del'){ currentPin = currentPin.slice(0,-1); }
+  else if(currentPin.length < 4){ currentPin += k; }
+  updateDots('enterPinDots', currentPin.length);
+  if(currentPin.length === 4){
+    const stored = localStorage.getItem(PIN_KEY + pendingUser);
+    if(currentPin === stored){
+      localStorage.setItem(USER_KEY, pendingUser);
+      currentPin = '';
+      loginSuccess(pendingUser);
+    } else {
+      updateDots('enterPinDots', 4, true);
+      err.textContent = 'PIN 碼錯誤，請再試一次';
+      setTimeout(()=>{
+        currentPin = '';
+        updateDots('enterPinDots', 0);
+        err.textContent = '';
+      }, 800);
+    }
+  }
+}
+
+function showForgotPin(){ showScreen('forgotPinScreen'); }
+
+function doLogout(){
+  if(accessToken && typeof google !== 'undefined'){
+    google.accounts.oauth2.revoke(accessToken, ()=>{});
+  }
+  accessToken=null; tokenExpiry=0;
+  localStorage.removeItem(USER_KEY);
+  currentUser=null; entries=[]; activeCatFilter='全部'; currentPage=1;
+  document.getElementById('searchInput').value='';
+  showScreen('welcomeScreen');
+}
+
+// ── GOOGLE SHEETS API ──
+async function createSpreadsheet(token){
+  const resp = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      properties: { title: 'Echo 暗號本' },
+      sheets: [{ properties: { title: SHEET_NAME } }]
+    })
+  });
+  if(!resp.ok) throw new Error('create:'+resp.status);
+  const data = await resp.json();
+  localStorage.setItem(SHEET_ID_KEY + currentUser, data.spreadsheetId);
+  await writeSheet(data.spreadsheetId, token, [SHEET_COLS]);
+  return data.spreadsheetId;
+}
+
+async function writeSheet(sheetId, token, rows){
+  // Clear first so deleted rows don't linger in the sheet
+  await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SHEET_NAME)}:clear`,
+    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }
+  );
+  const resp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SHEET_NAME}!A1?valueInputOption=RAW`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: rows, majorDimension: 'ROWS' })
+    }
+  );
+  if(!resp.ok) throw new Error('write:'+resp.status);
+}
+
+async function loadFromSheets(email){
+  const sheetId = localStorage.getItem(SHEET_ID_KEY + email);
+  if(!sheetId) return null;
+  const token = await ensureToken();
+  const resp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SHEET_NAME}!A:H`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if(resp.status === 404){ localStorage.removeItem(SHEET_ID_KEY + email); return null; }
+  if(!resp.ok) throw new Error('read:'+resp.status);
+  const data = await resp.json();
+  return (data.values||[]).slice(1)
+    .filter(r => r[1])
+    .map(r => ({
+      id: r[0]||uid(), platform: r[1]||'', account: r[2]||'',
+      hint: r[3]||'', note: r[4]||'', category: r[5]||'其他',
+      emoji: r[6]||'🔑', createdAt: r[7]||new Date().toISOString(),
+    }));
+}
+
+async function saveToSheets(email, data){
+  const token = await ensureToken();
+  let sheetId = localStorage.getItem(SHEET_ID_KEY + email);
+  if(!sheetId) sheetId = await createSpreadsheet(token);
+  const rows = [SHEET_COLS, ...data.map(e=>[
+    e.id, e.platform, e.account, e.hint||'', e.note||'',
+    e.category||'其他', e.emoji||'🔑', e.createdAt
+  ])];
+  await writeSheet(sheetId, token, rows);
+}
+
+// ── BACKGROUND SYNC ──
+async function syncToSheetsBackground(){
+  try {
+    const token = await ensureToken().catch(()=>null);
+    if(!token) return;
+    await saveToSheets(currentUser, entries);
+    showToast('已同步至 Google Sheets', 'success');
+    document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
+  } catch(e){ showToast('同步失敗', 'error'); }
+}
+
+async function syncFromSheetsBackground(){
+  try {
+    const token = await ensureToken().catch(()=>null);
+    if(!token) return;
+    const sheetEntries = await loadFromSheets(currentUser);
+    if(sheetEntries === null) return;
+    entries = sheetEntries;
+    saveUserData(currentUser, entries);
+    renderList();
+    document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
+    showToast('資料已從雲端同步', 'success');
+  } catch(e){ /* silent */ }
+}
+
+async function manualSync(){
+  showSyncOverlay(true, '正在同步資料…');
+  try {
+    let token;
+    try { token = await requestToken(''); }
+    catch { token = await requestToken('select_account'); }
+    const sheetEntries = await loadFromSheets(currentUser);
+    if(sheetEntries !== null){
+      entries = sheetEntries;
+      saveUserData(currentUser, entries);
+      renderList();
+    }
+    await saveToSheets(currentUser, entries);
+    showToast('同步完成', 'success');
+    document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
+  } catch(e){
+    showToast('同步失敗，請重新登入', 'error');
+  } finally {
+    showSyncOverlay(false);
+  }
+}
+
+// ── FILTER ──
+function buildCatFilter(){
+  document.getElementById('catScroll').innerHTML = CATS.map(c=>`
+    <div class="cat-chip${c.name===activeCatFilter?' active':''}"
+      style="${c.name===activeCatFilter?`background:${c.color};border-color:${c.color}`:''}"
+      onclick="setFilter('${c.name}')">
+      <span class="mi" style="color:${c.name===activeCatFilter?'white':c.color}">${c.icon}</span>${c.name}
+    </div>`).join('');
+}
+
+function setFilter(cat){ activeCatFilter=cat; currentPage=1; buildCatFilter(); renderList(); }
+function onSearch(){ currentPage=1; renderList(); }
+
+// ── LIST ──
+function renderList(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  filteredCache = entries.filter(e=>
+    e.platform.toLowerCase().includes(q) ||
+    e.account.toLowerCase().includes(q) ||
+    (e.note||'').toLowerCase().includes(q)
+  );
+  if(activeCatFilter!=='全部') filteredCache=filteredCache.filter(e=>(e.category||'其他')===activeCatFilter);
+
+  const total=filteredCache.length;
+  const totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
+  if(currentPage>totalPages) currentPage=totalPages;
+  const start=(currentPage-1)*PER_PAGE, end=Math.min(start+PER_PAGE,total);
+  const pageItems=filteredCache.slice(start,end);
+
+  document.getElementById('listCount').textContent=`${total} 筆`;
+  const area=document.getElementById('listArea');
+
+  if(!total){
+    area.innerHTML=`<div class="empty-state">
+      <div class="empty-icon-wrap"><span class="mi">search_off</span></div>
+      <div class="empty-title">${q?'找不到結果':'還沒有紀錄'}</div>
+      <div class="empty-sub">${q?'試試其他關鍵字':'點下方 + 新增第一筆帳號'}</div>
+    </div>`;
+    document.getElementById('paginationArea').innerHTML='';
+    return;
+  }
+
+  area.innerHTML=pageItems.map(e=>{
+    const cat=getCat(e.category||'其他');
+    return `<div class="entry-card" onclick="openDetail('${e.id}')">
+      <div class="entry-top">
+        <div class="entry-icon" style="background:${cat.bg}">${esc(e.emoji||'🔑')}</div>
+        <div class="entry-info">
+          <div class="entry-platform">${esc(e.platform)}</div>
+          <div class="entry-account">${esc(e.account)}</div>
+        </div>
+        <div class="entry-badge" style="background:${cat.bg};color:${cat.color}">${esc(e.category||'其他')}</div>
+      </div>
+      ${e.hint?`<div class="entry-hint-row"><span class="mi">visibility_off</span><div class="entry-hint-text">${esc(e.hint)}</div></div>`:''}
+    </div>`;
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages){
+  const area=document.getElementById('paginationArea');
+  if(totalPages<=1){area.innerHTML='';return;}
+  let btns='';
+  btns+=`<div class="page-nav" onclick="goPage(${currentPage-1})" ${currentPage===1?'style="opacity:.3;pointer-events:none"':''}><span class="mi">chevron_left</span></div>`;
+  let s=Math.max(1,currentPage-2), e2=Math.min(totalPages,s+4);
+  if(e2-s<4) s=Math.max(1,e2-4);
+  for(let i=s;i<=e2;i++){
+    btns+=`<div class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</div>`;
+  }
+  btns+=`<div class="page-nav" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'style="opacity:.3;pointer-events:none"':''}><span class="mi">chevron_right</span></div>`;
+  area.innerHTML=`<div class="pagination">${btns}<span class="page-info">${currentPage} / ${totalPages}</span></div>`;
+}
+
+function goPage(p){
+  const totalPages=Math.ceil(filteredCache.length/PER_PAGE);
+  if(p<1||p>totalPages)return;
+  currentPage=p; renderList();
+  document.getElementById('listArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── DETAIL ──
+function openDetail(id){
+  const e=entries.find(x=>x.id===id); if(!e)return;
+  detailId=id;
+  const cat=getCat(e.category||'其他');
+  document.getElementById('detailHero').innerHTML=`
+    <div class="detail-hero" style="background:${cat.bg}">
+      <div class="detail-icon">${esc(e.emoji||'🔑')}</div>
+      <div>
+        <div class="detail-platform">${esc(e.platform)}</div>
+        <div class="detail-cat-badge" style="color:${cat.color}">
+          <span class="mi">${cat.icon}</span>${esc(e.category||'其他')}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-block">
+      <div class="detail-block-label"><span class="mi">alternate_email</span>帳號 / EMAIL</div>
+      <div class="detail-block-value">${esc(e.account)}</div>
+    </div>
+    ${e.hint?`<div class="detail-hint-block">
+      <div class="detail-block-label" style="color:var(--hint)"><span class="mi">visibility_off</span>暗號提示</div>
+      <div class="detail-hint-value">${esc(e.hint)}</div>
+    </div>`:''}
+    ${e.note?`<div class="detail-block">
+      <div class="detail-block-label"><span class="mi">notes</span>備註</div>
+      <div class="detail-block-value">${esc(e.note)}</div>
+    </div>`:''}
+    <div class="detail-block">
+      <div class="detail-block-label"><span class="mi">schedule</span>建立時間</div>
+      <div class="detail-block-value" style="font-size:13px;color:var(--ink3)">${new Date(e.createdAt).toLocaleString('zh-TW')}</div>
+    </div>`;
+  showScreen('detailScreen');
+}
+
+function openEditFromDetail(){ openEdit(detailId); }
+function deleteFromDetail(){
+  entries=entries.filter(e=>e.id!==detailId);
+  saveUserData(currentUser,entries); goBack();
+  syncToSheetsBackground();
+}
+
+// ── EDIT ──
+function buildEmojiGrid(){
+  document.getElementById('emojiGrid').innerHTML=EMOJIS.map(em=>
+    `<div class="emoji-opt${em===selectedEmoji?' selected':''}" onclick="selectEmoji('${em}')">${em}</div>`).join('');
+}
+function selectEmoji(em){ selectedEmoji=em; buildEmojiGrid(); }
+
+function buildCatSelect(){
+  document.getElementById('catSelectRow').innerHTML=CATS.filter(c=>c.name!=='全部').map(c=>`
+    <div class="cat-edit-chip${c.name===selectedCat?' selected':''}" onclick="selectCatEdit('${c.name}')">
+      <span class="mi" style="color:${c.name===selectedCat?'var(--primary-dark)':c.color}">${c.icon}</span>${c.name}
+    </div>`).join('');
+}
+function selectCatEdit(c){ selectedCat=c; buildCatSelect(); }
+
+function openEdit(id){
+  editingId=id;
+  if(id){
+    const e=entries.find(x=>x.id===id);
+    document.getElementById('editTitle').textContent='編輯紀錄';
+    document.getElementById('deleteBtn').style.display='';
+    document.getElementById('fPlatform').value=e.platform;
+    document.getElementById('fAccount').value=e.account;
+    document.getElementById('fHint').value=e.hint||'';
+    document.getElementById('fNote').value=e.note||'';
+    setTimeout(()=>autoResize(document.getElementById('fNote')),10);
+    selectedCat=e.category||'其他'; selectedEmoji=e.emoji||'🔑';
+  }else{
+    document.getElementById('editTitle').textContent='新增紀錄';
+    document.getElementById('deleteBtn').style.display='none';
+    ['fPlatform','fAccount','fHint','fNote'].forEach(id=>document.getElementById(id).value='');
+    selectedCat='其他'; selectedEmoji='🔑';
+  }
+  buildEmojiGrid(); buildCatSelect(); showScreen('editScreen');
+}
+
+function saveEntry(){
+  const platform=document.getElementById('fPlatform').value.trim();
+  const account=document.getElementById('fAccount').value.trim();
+  const hint=document.getElementById('fHint').value.trim();
+  const note=document.getElementById('fNote').value.trim();
+  if(!platform||!account){alert('請填寫平台名稱和帳號');return;}
+  if(editingId){
+    const idx=entries.findIndex(e=>e.id===editingId);
+    entries[idx]={...entries[idx],platform,account,hint,note,category:selectedCat,emoji:selectedEmoji};
+  }else{
+    entries.unshift({id:uid(),platform,account,hint,note,category:selectedCat,emoji:selectedEmoji,createdAt:new Date().toISOString()});
+  }
+  saveUserData(currentUser,entries); goBack();
+  syncToSheetsBackground();
+}
+
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function deleteEntry(){
+  entries=entries.filter(e=>e.id!==editingId);
+  saveUserData(currentUser,entries); goBack();
+  syncToSheetsBackground();
+}
+
+// ── LOGIN SUCCESS ──
+function loginSuccess(user){
+  currentUser=user;
+  entries=getUserData(user);
+  const display = user.includes('@') ? user.split('@')[0] : user;
+  document.getElementById('greetingName').textContent=display;
+  document.getElementById('userAvatar').textContent=display[0].toUpperCase();
+  activeCatFilter='全部'; currentPage=1;
+  buildCatFilter(); renderList();
+  showScreen('mainScreen');
+  syncFromSheetsBackground();
+}
+
+// ── STARTUP ──
+(function(){
+  initGoogleAuth();
+  const savedUser = localStorage.getItem(USER_KEY);
+  if(savedUser){
+    pendingUser = savedUser;
+    document.getElementById('enterPinUserName').textContent = savedUser;
+    buildKeypad('enterPinKeypad', enterPinPress);
+    showScreen('enterPinScreen');
+  }
+  // else: welcomeScreen is active by default
+})();
+</script>
+</body>
+</html>
