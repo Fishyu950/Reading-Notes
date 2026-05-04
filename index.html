@@ -704,9 +704,9 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
             <button class="settings-item" id="btn-sync-notion" onclick="closeSettingsMenu()"><span class="material-icons-outlined">sync</span> 從 Notion 同步</button>
             <button class="settings-item" onclick="exportData();closeSettingsMenu()"><span class="material-icons-outlined">upload</span> 匯出</button>
             <button class="settings-item" onclick="document.getElementById('import-json-input').click();closeSettingsMenu()"><span class="material-icons-outlined">download</span> 匯入</button>
+            <div class="settings-version">v24 · 2026.05</div>
           </div>
           <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importData(this.files[0])"/>
-          <div class="settings-version">v24 · 2026.05<span class="settings-version-note">Notion 標籤需手動清理</span></div>
         </div>
         <button class="btn btn-gold" id="btn-new"><span class="material-icons-outlined">add</span> 新增</button>
       </div>

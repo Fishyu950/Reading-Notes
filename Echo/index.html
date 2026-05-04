@@ -4,8 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Echo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E59A2D' width='512' height='512'/><path fill='%23FFFFFF' d='M346.34,212.71h-0.61v-21.3c0-48.01-38.92-86.93-86.93-86.93h-5.59c-48.01,0-86.93,38.92-86.93,86.93v21.3h-0.61c-12.19,0-22.08,9.88-22.08,22.08v150.65c0,12.19,9.88,22.08,22.08,22.08h180.67c12.19,0,22.08-9.88,22.08-22.08V234.79C368.41,222.59,358.53,212.71,346.34,212.71z M218.52,156.73c9.26-9.27,21.58-14.37,34.68-14.37h5.59c13.1,0,25.42,5.1,34.68,14.37c9.26,9.26,14.37,21.58,14.37,34.68v21.3H204.16v-21.3C204.16,178.31,209.26,166,218.52,156.73z M268.22,327.33v31.65c0,6.75-5.47,12.22-12.22,12.22s-12.22-5.47-12.22-12.22v-31.65c-5.39-3.83-8.9-10.11-8.9-17.22c0-11.67,9.46-21.12,21.12-21.12c11.66,0,21.12,9.46,21.12,21.12C277.12,317.22,273.6,323.51,268.22,327.33z'/></svg>">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Echo">
+<meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
 :root {
@@ -80,7 +87,8 @@ input, button, .poppins,
 .detail-platform, .detail-block-value, .detail-hint-value,
 .tab-btn, .btn-primary, .btn-save, .btn-edit-detail,
 .field-label, .edit-field-label, .form-card-title,
-.delete-btn, .detail-block-label, .detail-cat-badge {
+.delete-btn, .detail-block-label, .detail-cat-badge,
+.profile-row-label, .profile-meta, .profile-username {
   font-family: 'Poppins', 'Noto Sans TC', sans-serif;
 }
 
@@ -206,7 +214,8 @@ input, button, .poppins,
 .section-title { font-size: 17px; font-weight: 700; color: var(--ink); }
 .list-count { font-size: 13px; color: var(--primary-dark); font-weight: 500; }
 
-.cat-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; -webkit-overflow-scrolling: touch; touch-action: pan-x; }
+.cat-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; -webkit-overflow-scrolling: touch; touch-action: pan-x; cursor: grab; user-select: none; }
+.cat-scroll.dragging { cursor: grabbing; }
 .cat-scroll::-webkit-scrollbar { display: none; }
 
 .cat-chip {
@@ -214,10 +223,10 @@ input, button, .poppins,
   padding: 8px 16px; background: var(--white); border: 1.5px solid var(--border);
   border-radius: 50px; font-size: 13px; color: var(--ink2); cursor: pointer;
   transition: all 0.18s; font-weight: 500; white-space: nowrap;
-  box-shadow: var(--shadow-sm); font-family: 'Noto Sans TC', sans-serif;
+  box-shadow: none; font-family: 'Noto Sans TC', sans-serif;
 }
 .cat-chip .mi { font-size: 16px; }
-.cat-chip.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.cat-chip.active { color: white; box-shadow: none; }
 
 .list-section { padding: 0 20px; }
 
@@ -247,6 +256,16 @@ input, button, .poppins,
 .entry-badge {
   flex-shrink: 0; padding: 4px 10px; border-radius: 50px;
   font-size: 11px; font-weight: 600;
+}
+
+/* URL row */
+.entry-url-row {
+  display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;
+}
+.entry-url-row .mi { color: var(--ink4); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.entry-url-text {
+  font-size: 11px; color: var(--ink4); word-break: break-all; line-height: 1.5;
+  font-family: 'Poppins', 'Noto Sans TC', sans-serif;
 }
 
 /* Hint row — warm olive */
@@ -309,6 +328,24 @@ input, button, .poppins,
 }
 .nav-fab:active { transform: scale(0.92); }
 .nav-fab .mi { color: white; font-size: 26px; }
+
+/* Scroll-to-top button */
+.scroll-top-wrap {
+  position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; pointer-events: none; z-index: 19;
+}
+.scroll-top-btn {
+  position: absolute; right: 16px; bottom: 0;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--primary); border: none;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(245,166,35,0.45);
+  cursor: pointer; pointer-events: none;
+  opacity: 0; transition: opacity 0.25s;
+}
+.scroll-top-btn.visible { opacity: 1; pointer-events: auto; }
+.scroll-top-btn:active { transform: scale(0.9); }
+.scroll-top-btn .mi { color: white; font-size: 22px; }
 
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-icon-wrap {
@@ -490,6 +527,7 @@ input, button, .poppins,
 /* Profile screen */
 #profileScreen { background: var(--bg); }
 .profile-body { padding: 24px 20px 100px; }
+.profile-version { text-align:center; font-size:11px; color:var(--ink4); padding:16px 0 4px; font-family:'Poppins',sans-serif; letter-spacing:0.04em; }
 .profile-card {
   background: var(--white); border-radius: var(--radius-lg);
   padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
@@ -525,6 +563,20 @@ input, button, .poppins,
 .profile-row-arrow .mi { font-size: 18px; color: var(--ink4); }
 .logout-row .profile-row-label { color: #b85a5a; }
 .logout-row .profile-row-icon .mi { color: #b85a5a; }
+.profile-io-row { display:flex; gap:10px; }
+.profile-io-card {
+  flex:1; background:var(--bg); border-radius:var(--radius-md);
+  padding:16px 12px; text-align:center; cursor:pointer; transition:all 0.15s;
+  border:none;
+}
+.profile-io-card:active { background:var(--bg2); }
+.profile-io-card .mi { font-size:26px; color:var(--primary); display:block; margin-bottom:6px; }
+.profile-io-lbl { font-size:12px; font-weight:600; color:var(--ink2); font-family:'Poppins','Noto Sans TC',sans-serif; }
+.nick-input-inline {
+  border:none; border-bottom:2px solid var(--primary); background:transparent;
+  font-family:'Poppins','Noto Sans TC',sans-serif; font-size:15px;
+  font-weight:600; color:var(--ink); outline:none; width:130px; padding:2px 4px;
+}
 
 @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeUp   { from{opacity:0;transform:translateY(18px)}  to{opacity:1;transform:translateY(0)} }
@@ -566,59 +618,106 @@ input, button, .poppins,
 }
 
 
-/* WELCOME */
+/* ════ INTRO ANIMATION ════ */
 #welcomeScreen {
   background:
     radial-gradient(ellipse at 28% 18%, rgba(245,166,35,0.07) 0%, transparent 52%),
     radial-gradient(ellipse at 74% 82%, rgba(138,130,96,0.06) 0%, transparent 48%),
     var(--bg);
-  align-items:center; justify-content:center; padding:88px 40px 68px;
+  position: relative; overflow: hidden; padding: 0;
 }
-.welcome-logo { text-align:center; margin-bottom:68px; animation:fadeDown 0.7s cubic-bezier(.16,1,.3,1) both; }
-.logo-circle { width:72px; height:72px; background:none; border:1.5px solid rgba(245,166,35,0.55); border-radius:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 26px; box-shadow:none; }
-.logo-circle .mi { font-size:32px; color:var(--primary); }
-.logo-wordmark { font-family:'Poppins',sans-serif; font-size:36px; font-weight:300; color:var(--ink); letter-spacing:10px; position:relative; display:inline-block; }
-.logo-wordmark::before,
-.logo-wordmark::after {
-  content:''; position:absolute; inset:-18px -24px;
-  border:1px solid rgba(245,166,35,0.38); border-radius:18px;
-  opacity:0; pointer-events:none;
-  animation:echoRipple 3.2s ease-out infinite;
+/* dot (stage 1-2) */
+#introDot {
+  position:absolute; left:50%; top:40%;
+  width:14px; height:14px; border-radius:50%; background:var(--primary);
+  transform:translate(-50%,-50%) scale(.3); opacity:0;
+  pointer-events:none; z-index:10; will-change:transform,opacity;
 }
-.logo-wordmark::after { animation-delay:1.6s; }
-@keyframes echoRipple {
-  0%   { transform:scale(0.86); opacity:0.6; }
-  65%  { opacity:0.1; }
-  100% { transform:scale(2.3);  opacity:0; }
+/* ripple sets */
+.rset { position:absolute; left:50%; top:40%; width:0; height:0; pointer-events:none; z-index:5; }
+#rset1 { top:calc(40% + 62px); }
+.rring {
+  position:absolute; width:56px; height:56px; left:-28px; top:-28px;
+  border-radius:50%; border:1.5px solid rgba(245,166,35,0.4);
+  transform:scale(0); opacity:0;
 }
-.logo-sub { font-family:'Poppins',sans-serif; font-size:13px; font-style:italic; font-weight:300; color:var(--ink3); margin-top:16px; letter-spacing:0.07em; line-height:1.8; }
-.welcome-card { width:100%; animation:fadeUp 0.7s 0.15s cubic-bezier(.16,1,.3,1) both; }
-.google-signin-btn { width:100%; padding:16px 20px; background:transparent; border:1px solid rgba(42,37,32,0.2); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; gap:14px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:400; letter-spacing:0.04em; color:var(--ink2); cursor:pointer; transition:all 0.2s; box-shadow:none; }
-.google-signin-btn:active { transform:scale(0.98); background:rgba(42,37,32,0.04); }
-.welcome-note { text-align:center; font-size:11px; color:var(--ink4); margin-top:32px; line-height:2; letter-spacing:0.03em; }
+.rring.fire { animation:rExpand 1.1s ease-out forwards; }
+@keyframes rExpand {
+  0%  { transform:scale(.1);  opacity:.65; }
+  60% { opacity:.2; }
+  100%{ transform:scale(7.5); opacity:0; }
+}
+/* lock (stage 3-5) */
+#introLock {
+  position:absolute; left:50%; top:40%;
+  transform:translate(-50%,-50%) scale(.4); opacity:0;
+  pointer-events:none; z-index:15; will-change:transform,opacity;
+}
+.lock-logo {
+  width:64px; height:64px; border-radius:50%; display:block;
+  box-shadow:0 8px 28px rgba(245,166,35,0.42);
+}
+/* surrounding icons (stage 3-4) */
+.intro-si {
+  position:absolute; left:50%; top:40%;
+  width:36px; height:36px; background:var(--white);
+  border-radius:50%; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  transform:translate(-50%,-50%) scale(0); opacity:0;
+  z-index:12; pointer-events:none; box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+.intro-si .mi { font-size:17px; color:var(--ink3); }
+/* text (stage 5) */
+#introText {
+  position:absolute; left:50%; top:40%;
+  transform:translateX(-50%) translateY(-20px); opacity:0;
+  text-align:center; z-index:8; pointer-events:none;
+  white-space:nowrap; will-change:transform,opacity;
+}
+.intro-wm { font-family:'Fugaz One',sans-serif; font-size:36px; color:var(--ink); letter-spacing:0.05em; }
+.intro-tag { font-family:'Poppins',sans-serif; font-size:13px; font-style:italic; font-weight:300; color:var(--ink3); margin-top:12px; letter-spacing:.07em; }
+/* login (stage 6) */
+#introLogin {
+  position:absolute; bottom:140px; left:50%;
+  width:calc(100% - 80px); max-width:350px;
+  transform:translateX(-50%) translateY(20px); opacity:0;
+  z-index:20; pointer-events:none;
+}
+.google-signin-btn { width:100%; padding:16px 20px; background:transparent; border:1px solid rgba(42,37,32,.2); border-radius:999px; display:flex; align-items:center; justify-content:center; gap:14px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:400; letter-spacing:.04em; color:var(--ink2); cursor:pointer; transition:all .2s; box-shadow:none; }
+.google-signin-btn:hover { background:#E59A2D; color:white; border-color:#E59A2D; }
+.google-signin-btn:hover svg { filter:brightness(0) invert(1); }
+.google-signin-btn:active { transform:scale(.98); background:rgba(42,37,32,.04); }
+.welcome-note { text-align:center; font-size:11px; color:var(--ink4); margin-top:20px; line-height:2; letter-spacing:.03em; }
+.return-indicator {
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.3);
+  border-radius:999px; padding:13px 20px;
+  font-family:'Poppins',sans-serif; font-size:13px; color:var(--ink2);
+}
+.return-dot { width:8px; height:8px; border-radius:50%; background:var(--primary); flex-shrink:0; }
 
 /* PIN */
-#setPinScreen,#confirmPinScreen,#enterPinScreen,#forgotPinScreen { background:var(--bg); align-items:center; justify-content:center; padding:48px 28px; }
-.pin-header { text-align:center; margin-bottom:28px; }
-.pin-icon-wrap { width:64px; height:64px; border-radius:20px; background:var(--primary-bg); border:2px solid rgba(245,166,35,0.3); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+#setPinScreen,#confirmPinScreen,#enterPinScreen,#forgotPinScreen { background:var(--bg); align-items:center; justify-content:center; padding:32px 28px; }
+.pin-header { text-align:center; margin-bottom:18px; }
+.pin-icon-wrap { width:64px; height:64px; border-radius:50%; overflow:hidden; background:var(--primary-bg); border:2px solid rgba(245,166,35,0.3); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
 .pin-icon-wrap .mi { font-size:30px; color:var(--primary-dark); }
 .pin-title { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:var(--ink); margin-bottom:6px; }
 .pin-sub { font-size:13px; color:var(--ink3); line-height:1.6; }
-.pin-user-badge { display:inline-flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:6px 14px; margin-bottom:32px; box-shadow:var(--shadow-sm); }
+.pin-user-badge { display:inline-flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:6px 14px; margin-bottom:20px; box-shadow:var(--shadow-sm); }
 .pin-user-badge .mi { font-size:16px; color:var(--ink3); }
 .pin-user-name { font-family:'Poppins',sans-serif; font-size:13px; font-weight:500; color:var(--ink2); }
-.pin-dots { display:flex; gap:16px; justify-content:center; margin-bottom:12px; }
+.pin-dots { display:flex; gap:16px; justify-content:center; margin-bottom:8px; }
 .pin-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--border); background:var(--white); transition:all 0.15s; }
 .pin-dot.filled { background:var(--primary); border-color:var(--primary); transform:scale(1.1); }
 .pin-dot.error { background:#b85a5a; border-color:#b85a5a; animation:shake 0.3s; }
-.pin-err { font-size:13px; color:#b85a5a; min-height:20px; text-align:center; margin-bottom:20px; font-family:'Poppins',sans-serif; }
-.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:280px; margin:0 auto; }
+.pin-err { font-size:13px; color:#b85a5a; min-height:20px; text-align:center; margin-bottom:10px; font-family:'Poppins',sans-serif; }
+.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:240px; margin:0 auto; }
 .pin-key { aspect-ratio:1; border-radius:50%; background:var(--white); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-size:22px; font-weight:600; color:var(--ink); cursor:pointer; transition:all 0.15s; box-shadow:var(--shadow-sm); user-select:none; }
 .pin-key:active { background:var(--primary-bg); border-color:var(--primary); transform:scale(0.93); }
 .pin-key.del { background:none; border:none; box-shadow:none; }
 .pin-key.del .mi { font-size:24px; color:var(--ink3); }
 .pin-key.empty { background:none; border:none; box-shadow:none; cursor:default; }
-.pin-forgot { text-align:center; margin-top:24px; }
+.pin-forgot { text-align:center; margin-top:12px; }
 .pin-forgot-btn { background:none; border:none; font-family:'Poppins',sans-serif; font-size:13px; color:var(--ink3); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
 
 /* FORGOT */
@@ -643,6 +742,19 @@ input, button, .poppins,
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 .toast.success { background:#4a7c59; }
 .toast.error { background:#b85a5a; }
+.sync-hint {
+  display:flex; align-items:center; gap:10px;
+  background:#FFF9E6; border-radius:999px;
+  border:1px solid #f0d090;
+  color:var(--primary-dark); font-family:'Poppins','Noto Sans TC',sans-serif;
+  font-size:13px; font-weight:500;
+  padding:14px 16px; margin:12px 20px 12px;
+  cursor:pointer; user-select:none;
+  box-shadow:0 2px 8px rgba(245,166,35,0.10);
+}
+.sync-hint.hidden { display:none; }
+.sync-hint .mi { font-size:20px; color:var(--primary); }
+.sync-hint-text { flex:1; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
@@ -650,22 +762,58 @@ input, button, .poppins,
 
 <!-- ════ WELCOME ════ -->
 <div id="welcomeScreen" class="screen active">
-  <div class="welcome-logo">
-    <div class="logo-circle"><span class="mi">lock</span></div>
-    <div class="logo-wordmark">Echo</div>
-    <div class="logo-sub">Lost in mind, found in Echo.</div>
+  <!-- stage 2 ripples (centered on drop point) -->
+  <div class="rset" id="rset1">
+    <div class="rring"></div><div class="rring"></div><div class="rring"></div>
   </div>
-  <div class="welcome-card">
-    <button class="google-signin-btn" onclick="googleLogin()">
-      <svg class="google-icon-svg" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      使用 Google 帳號登入
-    </button>
-    <p class="welcome-note">登入即表示你同意 Echo 使用 Google Sheets<br>儲存你的個人資料於你的帳號空間</p>
+  <!-- stage 4 ripples (centered on lock) -->
+  <div class="rset" id="rset2">
+    <div class="rring"></div><div class="rring"></div>
+  </div>
+  <!-- s1-s2: dot -->
+  <div id="introDot"></div>
+  <!-- s3-s5: logo -->
+  <div id="introLock">
+    <svg class="lock-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="roundClip"><circle cx="256" cy="256" r="256"/></clipPath></defs>
+      <g clip-path="url(#roundClip)">
+        <rect x="0" y="0" fill="#E59A2D" width="512" height="512"/>
+        <path fill="#FFFFFF" d="M346.34,212.71h-0.61v-21.3c0-48.01-38.92-86.93-86.93-86.93h-5.59c-48.01,0-86.93,38.92-86.93,86.93v21.3h-0.61c-12.19,0-22.08,9.88-22.08,22.08v150.65c0,12.19,9.88,22.08,22.08,22.08h180.67c12.19,0,22.08-9.88,22.08-22.08V234.79C368.41,222.59,358.53,212.71,346.34,212.71z M218.52,156.73c9.26-9.27,21.58-14.37,34.68-14.37h5.59c13.1,0,25.42,5.1,34.68,14.37c9.26,9.26,14.37,21.58,14.37,34.68v21.3H204.16v-21.3C204.16,178.31,209.26,166,218.52,156.73z M268.22,327.33v31.65c0,6.75-5.47,12.22-12.22,12.22s-12.22-5.47-12.22-12.22v-31.65c-5.39-3.83-8.9-10.11-8.9-17.22c0-11.67,9.46-21.12,21.12-21.12c11.66,0,21.12,9.46,21.12,21.12C277.12,317.22,273.6,323.51,268.22,327.33z"/>
+      </g>
+    </svg>
+  </div>
+  <!-- s3-s4: surrounding icons -->
+  <div class="intro-si" id="iSi1"><span class="mi">mail</span></div>
+  <div class="intro-si" id="iSi2"><span class="mi">bookmark</span></div>
+  <div class="intro-si" id="iSi3"><span class="mi">group</span></div>
+  <div class="intro-si" id="iSi4"><span class="mi">article</span></div>
+  <!-- s5: title + tagline -->
+  <div id="introText">
+    <div class="intro-wm">E c h o</div>
+    <div class="intro-tag">Lost in mind, found in Echo.</div>
+  </div>
+  <!-- s6: login -->
+  <div id="introLogin">
+    <!-- New user state -->
+    <div id="introLoginNew">
+      <button class="google-signin-btn" onclick="googleLogin()">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        使用 Google 帳號登入
+      </button>
+      <p class="welcome-note">登入即表示你同意 Echo 使用 Google Sheets<br>儲存你的個人資料於你的帳號空間</p>
+    </div>
+    <!-- Returning user state -->
+    <div id="introLoginReturn" style="display:none">
+      <div class="return-indicator">
+        <span class="return-dot"></span>已連結 Google
+      </div>
+      <p class="welcome-note" id="returnUserEmail"></p>
+    </div>
   </div>
 </div>
 
@@ -710,7 +858,7 @@ input, button, .poppins,
 <!-- ════ ENTER PIN ════ -->
 <div id="enterPinScreen" class="screen">
   <div style="position:absolute;top:20px;left:20px;">
-    <button class="back-to-welcome-btn" onclick="showScreen('welcomeScreen')">
+    <button class="back-to-welcome-btn" onclick="backFromPin()">
       <span class="mi">arrow_back</span>
     </button>
   </div>
@@ -763,6 +911,11 @@ input, button, .poppins,
     <div class="header-name" id="greetingName">使用者</div>
     <div class="avatar-btn" id="userAvatar" onclick="showProfile()">U</div>
   </div>
+  <div id="syncHint" class="sync-hint hidden" onclick="manualSync()">
+    <span class="mi">sync</span>
+    <span class="sync-hint-text">點此重新連線 Google 以同步資料</span>
+    <span class="mi" style="font-size:14px;opacity:0.5">chevron_right</span>
+  </div>
   <div class="search-section">
     <div class="search-wrap">
       <span class="mi">search</span>
@@ -778,6 +931,11 @@ input, button, .poppins,
   </div>
   <div class="list-section" id="listArea"></div>
   <div id="paginationArea"></div>
+  <div class="scroll-top-wrap">
+    <button class="scroll-top-btn" id="scrollTopBtn" onclick="scrollToTop()" aria-label="回到頂部">
+      <span class="mi">keyboard_arrow_up</span>
+    </button>
+  </div>
   <div class="bottom-nav">
     <div class="nav-item active" id="navHome" onclick="switchNav('home')">
       <span class="mi">home</span><span>主頁</span>
@@ -806,24 +964,29 @@ input, button, .poppins,
       <div class="emoji-grid" id="emojiGrid"></div>
     </div>
     <div class="form-card">
+      <div class="form-card-title"><span class="mi">category</span>分類</div>
+      <div class="cat-chips-wrap" id="catSelectRow"></div>
+    </div>
+    <div class="form-card">
       <div class="form-card-title"><span class="mi">info</span>基本資訊</div>
       <label class="edit-field-label">平台 / 網站名稱</label>
       <div class="edit-field-wrap">
         <span class="mi edit-field-icon">language</span>
         <input class="edit-input" id="fPlatform" type="text" placeholder="例：Gmail、Line、Netflix">
       </div>
+      <label class="edit-field-label">平台網址（選填）</label>
+      <div class="edit-field-wrap">
+        <span class="mi edit-field-icon">language</span>
+        <input class="edit-input" id="fUrl" type="url" placeholder="https://..." autocomplete="url">
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="form-card-title"><span class="mi">lightbulb</span>暗號提示</div>
       <label class="edit-field-label">帳號 / Email</label>
       <div class="edit-field-wrap">
         <span class="mi edit-field-icon">alternate_email</span>
         <input class="edit-input" id="fAccount" type="text" placeholder="登入用的帳號">
       </div>
-    </div>
-    <div class="form-card">
-      <div class="form-card-title"><span class="mi">category</span>分類</div>
-      <div class="cat-chips-wrap" id="catSelectRow"></div>
-    </div>
-    <div class="form-card">
-      <div class="form-card-title"><span class="mi">lightbulb</span>暗號提示</div>
       <label class="edit-field-label">暗號</label>
       <div class="edit-field-wrap">
         <span class="mi edit-field-icon" style="color:var(--hint)">visibility_off</span>
@@ -833,7 +996,7 @@ input, button, .poppins,
         <span class="mi">info</span>
         請填入<span>暗號或記憶提示</span>，切勿填入真實密碼
       </div>
-      <label class="edit-field-label">備註</label>
+      <label class="edit-field-label">備註（選填）</label>
       <div class="edit-field-wrap">
         <span class="mi edit-field-icon" style="top:14px;transform:none">notes</span>
         <textarea class="edit-input edit-textarea" id="fNote" placeholder="其他補充（選填）" rows="2" oninput="autoResize(this)"></textarea>
@@ -870,25 +1033,50 @@ input, button, .poppins,
     <div class="nav-title">帳號設定</div>
   </div>
   <div class="profile-body">
+    <!-- 1. 頭貼 + Email + 已連結狀態 -->
     <div class="profile-card">
       <div class="profile-avatar-big" id="profileAvatarBig">U</div>
       <div class="profile-username" id="profileUsername">使用者</div>
       <div class="profile-meta" id="profileMeta">尚未同步至雲端</div>
     </div>
+    <!-- 2. 匯出／匯入卡片（左右並排，統計卡片樣式） -->
     <div class="profile-card">
+      <div class="profile-io-row">
+        <button class="profile-io-card" onclick="exportData()">
+          <span class="mi">download</span>
+          <div class="profile-io-lbl">匯出備份</div>
+        </button>
+        <button class="profile-io-card" onclick="importData()">
+          <span class="mi">upload</span>
+          <div class="profile-io-lbl">匯入資料</div>
+        </button>
+      </div>
+    </div>
+    <!-- 3+4+5. 暱稱 / 同步 / 登出 合併卡片 -->
+    <div class="profile-card">
+      <div class="profile-row" style="cursor:default">
+        <div class="profile-row-icon"><span class="mi">badge</span></div>
+        <div class="profile-row-label" id="nickDisplay">
+          暱稱：<span id="profileNickname" style="font-weight:600;color:var(--ink)">--</span><input id="nickInput" class="nick-input-inline" style="display:none"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();finishNickEdit(this.value)}"
+            onblur="finishNickEdit(this.value)">
+        </div>
+        <div class="profile-row-arrow" id="nickEditBtn" onclick="startNickEdit()" style="cursor:pointer;padding:4px">
+          <span class="mi">edit</span>
+        </div>
+      </div>
       <div class="profile-row" onclick="manualSync()">
         <div class="profile-row-icon"><span class="mi">sync</span></div>
         <div class="profile-row-label">立即同步 Google Sheets</div>
         <div class="profile-row-arrow"><span class="mi">chevron_right</span></div>
       </div>
-    </div>
-    <div class="profile-card">
       <div class="profile-row logout-row" onclick="doLogout()">
         <div class="profile-row-icon"><span class="mi">logout</span></div>
         <div class="profile-row-label">登出</div>
         <div class="profile-row-arrow"><span class="mi">chevron_right</span></div>
       </div>
     </div>
+    <div class="profile-version">Echo v1.0.3 build 20260504</div>
   </div>
   <div class="bottom-nav">
     <div class="nav-item" id="navHome2" onclick="switchNav('home')">
@@ -928,9 +1116,10 @@ const CATS = [
 const EMOJIS = ['🔑','💳','📧','🛒','💼','🎮','🏦','📱','🌐','🔒','⭐','🎵','📷','🚀','💡','🎯'];
 const PER_PAGE = 10;
 const DATA_PFX = 'echo_data_';
-const PIN_KEY = 'echo_pin_', USER_KEY = 'echo_current_user', SHEET_ID_KEY = 'echo_sheet_';
+const PIN_KEY = 'echo_pin_', USER_KEY = 'echo_current_user', SHEET_ID_KEY = 'echo_sheet_', NICK_KEY = 'echo_nick_', AVATAR_KEY = 'echo_avatar_';
 const SHEET_NAME = 'EchoData';
-const SHEET_COLS = ['ID','平台','帳號','暗號','備註','分類','圖示','建立時間'];
+const SETTINGS_SHEET = '設定';
+const SHEET_COLS = ['平台','網址','帳號','暗號','備註','分類','建立時間'];
 
 // ── STATE ──
 let currentUser=null, entries=[], editingId=null, detailId=null;
@@ -960,6 +1149,11 @@ function showToast(msg, type=''){
   setTimeout(()=>{ el.className = 'toast'; }, 2500);
 }
 
+function showSyncHint(show){
+  const el = document.getElementById('syncHint');
+  if(el) el.classList.toggle('hidden', !show);
+}
+
 function showSyncOverlay(show, label='正在同步資料…'){
   document.getElementById('syncOverlay').classList.toggle('hidden', !show);
   if(label) document.getElementById('syncLabel').textContent = label;
@@ -979,12 +1173,126 @@ function switchNav(tab){
   }
 }
 
+function getNick(){
+  if(!currentUser) return 'U';
+  const def = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+  return localStorage.getItem(NICK_KEY + currentUser) || def;
+}
+
+function resetNickDisplay(){
+  const nick = getNick();
+  const nameSpan = document.getElementById('profileNickname');
+  const input = document.getElementById('nickInput');
+  const btn = document.getElementById('nickEditBtn');
+  if(!nameSpan || !btn) return;
+  nameSpan.textContent = nick;
+  nameSpan.style.display = '';
+  if(input) input.style.display = 'none';
+  btn.innerHTML = '<span class="mi">edit</span>';
+  btn.onclick = startNickEdit;
+}
+
+function startNickEdit(){
+  if(!currentUser) return;
+  const nameSpan = document.getElementById('profileNickname');
+  const input = document.getElementById('nickInput');
+  const btn = document.getElementById('nickEditBtn');
+  if(!nameSpan || !input || !btn) return;
+  input.value = getNick();
+  nameSpan.style.display = 'none';
+  input.style.display = '';
+  input.focus();
+  btn.innerHTML = '<span class="mi" style="color:var(--primary)">check</span>';
+  btn.onclick = () => finishNickEdit(input.value);
+}
+
+function finishNickEdit(val){
+  const input = document.getElementById('nickInput');
+  if(!input || input.style.display === 'none') return; // guard against double-fire
+  const def = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+  const nick = val.trim() || def;
+  resetNickDisplay();
+  applyNick(nick);
+  saveNickToSheets(nick);
+}
+
 function showProfile(){
-  document.getElementById('profileAvatarBig').textContent = currentUser ? currentUser[0].toUpperCase() : 'U';
+  applyAvatars(currentUser);
   document.getElementById('profileUsername').textContent = currentUser || '使用者';
+  resetNickDisplay();
   const sheetId = currentUser ? localStorage.getItem(SHEET_ID_KEY + currentUser) : null;
   document.getElementById('profileMeta').textContent = sheetId ? '已連結 Google Sheets' : '尚未同步至雲端';
   showScreen('profileScreen');
+}
+
+function editNickname(){
+  startNickEdit();
+}
+
+function exportData(){
+  const date = new Date().toISOString().split('T')[0];
+  const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Echo_備份_${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(){
+  if(!confirm('匯入將會合併現有資料，是否繼續？')) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if(!Array.isArray(imported)) throw new Error('invalid');
+        const existingIds = new Set(entries.map(e => e.id));
+        const added = imported.filter(e => e.id && e.platform && !existingIds.has(e.id));
+        entries = [...added, ...entries];
+        saveUserData(currentUser, entries);
+        renderList();
+        showToast(`已匯入 ${added.length} 筆資料`, 'success');
+        syncToSheetsBackground();
+      } catch { showToast('檔案格式錯誤', 'error'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function scrollToTop(){
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function initScrollTop(){
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollTopBtn');
+    if(!btn) return;
+    btn.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
+}
+
+function initCatScrollDrag(){
+  const el = document.getElementById('catScroll');
+  let isDown = false, startX, scrollLeft;
+  el.addEventListener('mousedown', e => {
+    isDown = true; el.classList.add('dragging');
+    startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft;
+    e.preventDefault();
+  });
+  el.addEventListener('mouseleave', () => { isDown = false; el.classList.remove('dragging'); });
+  el.addEventListener('mouseup', () => { isDown = false; el.classList.remove('dragging'); });
+  el.addEventListener('mousemove', e => {
+    if(!isDown) return;
+    e.preventDefault();
+    el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+  });
 }
 
 // ── GOOGLE AUTH ──
@@ -992,21 +1300,31 @@ function initGoogleAuth(){
   if(typeof google === 'undefined' || !google.accounts){ setTimeout(initGoogleAuth, 200); return; }
   googleTokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/spreadsheets email profile',
+    scope: 'https://www.googleapis.com/auth/drive.file email profile',
     callback: ()=>{},
   });
 }
 
-function requestToken(prompt=''){
+function requestToken(promptVal=''){
   return new Promise((resolve, reject)=>{
     if(!googleTokenClient){ reject(new Error('GSI not ready')); return; }
-    googleTokenClient.callback = (resp)=>{
+    const isSilent = (promptVal === '' || promptVal === 'none');
+    let escalated = false;
+    const handler = (resp)=>{
       if(resp.error){ reject(new Error(resp.error)); return; }
+      // Only escalate to consent screen for interactive (non-silent) requests
+      if(!isSilent && resp.scope && !resp.scope.includes('drive.file') && !escalated){
+        escalated = true;
+        googleTokenClient.callback = handler;
+        googleTokenClient.requestAccessToken({ prompt: 'consent' });
+        return;
+      }
       accessToken = resp.access_token;
       tokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
       resolve(accessToken);
     };
-    googleTokenClient.requestAccessToken({ prompt });
+    googleTokenClient.callback = handler;
+    googleTokenClient.requestAccessToken({ prompt: promptVal });
   });
 }
 
@@ -1015,37 +1333,86 @@ async function ensureToken(){
   return requestToken('');
 }
 
+// Returns cached token only — never triggers OAuth popup (used for background operations)
+function getTokenIfValid(){
+  return (accessToken && Date.now() < tokenExpiry) ? accessToken : null;
+}
+
+// Shared post-auth PIN routing (used by both popup and redirect flows)
+function proceedToPinAfterAuth(email, token){
+  currentUser = email; // Set early so ensureSheet can use it (currentUser must not be null)
+  console.log('[Echo] proceedToPinAfterAuth: email =', email, '| currentUser =', currentUser);
+  if(token) ensureSheet(token).then(({sheetId}) => console.log('[Echo] sheet ready:', sheetId)).catch(e => console.warn('[Echo] sheet init error:', e));
+  pendingUser = email;
+  ['setPinUserName','confirmPinUserName','enterPinUserName'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.textContent = email;
+  });
+  const storedPin = localStorage.getItem(PIN_KEY + email);
+  if(storedPin && !forgotPinMode){
+    buildKeypad('enterPinKeypad', enterPinPress);
+    showScreen('enterPinScreen');
+  } else {
+    localStorage.removeItem(PIN_KEY + email);
+    forgotPinMode = false;
+    currentPin=''; setPinFirst='';
+    updateDots('setPinDots', 0);
+    document.getElementById('setPinErr').textContent='';
+    buildKeypad('setPinKeypad', setPinPress);
+    showScreen('setPinScreen');
+  }
+}
+
+// Handle OAuth redirect callback — used in iOS Safari PWA standalone mode
+async function handleOAuthRedirect(){
+  const hash = window.location.hash.slice(1);
+  if(!hash.includes('access_token')) return false;
+  const params = new URLSearchParams(hash);
+  const tok = params.get('access_token');
+  const expiresIn = parseInt(params.get('expires_in') || '3599', 10);
+  if(!tok) return false;
+  history.replaceState(null, '', window.location.pathname);
+  accessToken = tok;
+  tokenExpiry = Date.now() + (expiresIn - 60) * 1000;
+  try {
+    const infoResp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + tok } });
+    const info = await infoResp.json();
+    if(!info.email) return false;
+    if(info.picture) localStorage.setItem(AVATAR_KEY + info.email, info.picture);
+    proceedToPinAfterAuth(info.email, tok);
+    return true;
+  } catch(e){
+    console.error('[Echo] OAuth redirect error:', e);
+    showToast('Google 登入失敗', 'error');
+    return false;
+  }
+}
+
 async function googleLogin(){
   if(GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE'){
     alert('尚未設定 Google Client ID\n\n請參閱說明，在 Google Cloud Console 建立 OAuth 用戶端並填入 GOOGLE_CLIENT_ID');
     return;
   }
+  // iOS Safari PWA standalone mode — open Safari tab for OAuth (redirect causes redirect_uri_mismatch; popup blocked in PWA)
+  if(window.navigator.standalone){
+    window.onOAuthResult = function(email, token, picture){
+      window.onOAuthResult = null;
+      if(token){ accessToken = token; tokenExpiry = Date.now() + 3540 * 1000; }
+      if(picture) localStorage.setItem(AVATAR_KEY + email, picture);
+      proceedToPinAfterAuth(email, token);
+    };
+    const url = location.protocol + '//' + location.host + location.pathname + '?echo_oauth=1';
+    const w = window.open(url, '_blank');
+    if(!w) showToast('請允許開啟瀏覽器視窗以完成登入', 'error');
+    return;
+  }
   if(!googleTokenClient){ showToast('Google 登入初始化中，請稍後', 'error'); return; }
   try {
     const token = await requestToken('select_account');
-    const resp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const resp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } });
     const info = await resp.json();
     if(!info.email) throw new Error('no email');
-    const email = info.email;
-    pendingUser = email;
-    ['setPinUserName','confirmPinUserName','enterPinUserName'].forEach(id=>{
-      document.getElementById(id).textContent = email;
-    });
-    const storedPin = localStorage.getItem(PIN_KEY + email);
-    if(storedPin && !forgotPinMode){
-      buildKeypad('enterPinKeypad', enterPinPress);
-      showScreen('enterPinScreen');
-    } else {
-      localStorage.removeItem(PIN_KEY + email);
-      forgotPinMode = false;
-      currentPin=''; setPinFirst='';
-      updateDots('setPinDots', 0);
-      document.getElementById('setPinErr').textContent='';
-      buildKeypad('setPinKeypad', setPinPress);
-      showScreen('setPinScreen');
-    }
+    if(info.picture) localStorage.setItem(AVATAR_KEY + info.email, info.picture);
+    proceedToPinAfterAuth(info.email, token);
   } catch(e){
     showToast('Google 登入失敗，請再試一次', 'error');
   }
@@ -1148,28 +1515,144 @@ function doLogout(){
   localStorage.removeItem(USER_KEY);
   currentUser=null; entries=[]; activeCatFilter='全部'; currentPage=1;
   document.getElementById('searchInput').value='';
+  showWelcomeFinal();
   showScreen('welcomeScreen');
 }
 
 // ── GOOGLE SHEETS API ──
-async function createSpreadsheet(token){
-  const resp = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+
+// Search Drive for an existing "Echo 暗號本" file (no mimeType filter — finds old + new files)
+async function findExistingSheet(token){
+  const q = encodeURIComponent("name='Echo 暗號本' and trashed=false");
+  const searchUrl = 'https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id,name)&pageSize=5';
+  console.log('[Echo] findExistingSheet: GET', searchUrl);
+  const resp = await fetch(searchUrl, { headers: { Authorization: 'Bearer ' + token } });
+  console.log('[Echo] findExistingSheet: HTTP', resp.status, resp.statusText);
+  const data = await resp.json();
+  console.log('[Echo] findExistingSheet: response =', JSON.stringify(data, null, 2));
+  if(!resp.ok){ console.warn('[Echo] findExistingSheet: FAILED —', data.error); return null; }
+  const found = (data.files && data.files[0]) ? data.files[0].id : null;
+  console.log('[Echo] findExistingSheet: files found =', data.files ? data.files.length : 0, '→ id =', found);
+  return found;
+}
+
+// Add 設定 sheet to an existing spreadsheet that was created without it
+async function ensureSettingsSheet(sheetId, token){
+  const resp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets/properties/title`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if(!resp.ok) return;
+  const data = await resp.json();
+  const titles = (data.sheets || []).map(s => s.properties.title);
+  console.log('[Echo] ensureSettingsSheet: existing tabs =', titles);
+  if(titles.includes(SETTINGS_SHEET)) return;
+  console.log('[Echo] ensureSettingsSheet: 設定 tab missing — adding via batchUpdate...');
+  const addResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}:batchUpdate`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      properties: { title: 'Echo 暗號本' },
-      sheets: [{ properties: { title: SHEET_NAME } }]
-    })
+    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: SETTINGS_SHEET } } }] })
   });
-  if(!resp.ok) throw new Error('create:'+resp.status);
-  const data = await resp.json();
-  localStorage.setItem(SHEET_ID_KEY + currentUser, data.spreadsheetId);
-  await writeSheet(data.spreadsheetId, token, [SHEET_COLS]);
-  return data.spreadsheetId;
+  console.log('[Echo] ensureSettingsSheet: addSheet HTTP', addResp.status);
+}
+
+// Resolve sheet ID: Drive search (primary) → localStorage fallback → create
+async function ensureSheet(token){
+  console.log('[Echo] ensureSheet: START — currentUser =', currentUser);
+  let sheetId = null;
+
+  // Step 1: Drive search is always the primary lookup
+  sheetId = await findExistingSheet(token);
+  if(sheetId){
+    console.log('[Echo] ensureSheet: Drive found sheet, updating localStorage:', sheetId);
+    localStorage.setItem(SHEET_ID_KEY + currentUser, sheetId);
+  }
+
+  // Step 2: Drive came up empty — verify locally cached ID as fallback
+  if(!sheetId && currentUser){
+    const cached = localStorage.getItem(SHEET_ID_KEY + currentUser);
+    if(cached){
+      console.log('[Echo] ensureSheet: Drive search empty, verifying cached id:', cached);
+      const check = await fetch(
+        'https://sheets.googleapis.com/v4/spreadsheets/' + cached + '?fields=spreadsheetId',
+        { headers: { Authorization: 'Bearer ' + token } }
+      );
+      console.log('[Echo] ensureSheet: verify cached HTTP', check.status);
+      if(check.ok){
+        sheetId = cached;
+        console.log('[Echo] ensureSheet: using cached id (file may not be in Drive root):', sheetId);
+      } else {
+        localStorage.removeItem(SHEET_ID_KEY + currentUser);
+        console.log('[Echo] ensureSheet: cached id invalid, cleared');
+      }
+    }
+  }
+
+  // Step 3: Nothing found — create new spreadsheet in Drive root
+  let isNew = false;
+  if(!sheetId){
+    console.log('[Echo] ensureSheet: no sheet found anywhere — creating new...');
+    sheetId = await createSpreadsheet(token);
+    isNew = true;
+    console.log('[Echo] ensureSheet: created new sheet:', sheetId);
+  } else {
+    await ensureSettingsSheet(sheetId, token);
+  }
+
+  console.log('[Echo] ensureSheet: DONE — sheetId =', sheetId, '| isNew =', isNew);
+  return { sheetId, isNew };
+}
+
+async function createSpreadsheet(token){
+  // Step 1: Create the file via Drive API with parents:['root'] so it appears in My Drive
+  const driveReqBody = { name: 'Echo 暗號本', mimeType: 'application/vnd.google-apps.spreadsheet', parents: ['root'] };
+  console.log('[Echo] createSpreadsheet: POST https://www.googleapis.com/drive/v3/files');
+  console.log('[Echo] createSpreadsheet: request body =', JSON.stringify(driveReqBody, null, 2));
+  const driveResp = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(driveReqBody)
+  });
+  console.log('[Echo] createSpreadsheet: Drive API HTTP', driveResp.status, driveResp.statusText);
+  const driveData = await driveResp.json();
+  console.log('[Echo] createSpreadsheet: Drive API response =', JSON.stringify(driveData, null, 2));
+  if(!driveResp.ok) throw new Error('create:' + driveResp.status + ' ' + JSON.stringify(driveData.error));
+  const spreadsheetId = driveData.id;
+  console.log('[Echo] createSpreadsheet: file created, id =', spreadsheetId);
+
+  // Step 2: Get the default sheet's ID so we can rename it
+  const metaResp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets/properties`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  const meta = await metaResp.json();
+  const firstSheetId = meta.sheets[0].properties.sheetId;
+  console.log('[Echo] createSpreadsheet: default sheet id =', firstSheetId);
+
+  // Step 3: Rename default sheet to EchoData, add 設定 sheet
+  console.log('[Echo] createSpreadsheet: renaming Sheet1 →', SHEET_NAME, 'and adding', SETTINGS_SHEET);
+  const batchResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requests: [
+      { updateSheetProperties: { properties: { sheetId: firstSheetId, title: SHEET_NAME }, fields: 'title' } },
+      { addSheet: { properties: { title: SETTINGS_SHEET } } }
+    ]})
+  });
+  console.log('[Echo] createSpreadsheet: batchUpdate HTTP', batchResp.status);
+  const batchData = await batchResp.json();
+  console.log('[Echo] createSpreadsheet: batchUpdate response =', JSON.stringify(batchData, null, 2));
+  if(!batchResp.ok) throw new Error('batchUpdate:' + batchResp.status + ' ' + JSON.stringify(batchData.error));
+
+  // Step 4: Save ID to localStorage, then write column headers
+  localStorage.setItem(SHEET_ID_KEY + currentUser, spreadsheetId);
+  console.log('[Echo] createSpreadsheet: writing headers to', SHEET_NAME, '— cols:', SHEET_COLS);
+  await writeSheet(spreadsheetId, token, [SHEET_COLS]);
+  console.log('[Echo] createSpreadsheet: SUCCESS — id =', spreadsheetId);
+  return spreadsheetId;
 }
 
 async function writeSheet(sheetId, token, rows){
-  // Clear first so deleted rows don't linger in the sheet
   await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SHEET_NAME)}:clear`,
     { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }
@@ -1185,79 +1668,231 @@ async function writeSheet(sheetId, token, rows){
   if(!resp.ok) throw new Error('write:'+resp.status);
 }
 
-async function loadFromSheets(email){
-  const sheetId = localStorage.getItem(SHEET_ID_KEY + email);
-  if(!sheetId) return null;
-  const token = await ensureToken();
-  const resp = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SHEET_NAME}!A:H`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  if(resp.status === 404){ localStorage.removeItem(SHEET_ID_KEY + email); return null; }
-  if(!resp.ok) throw new Error('read:'+resp.status);
-  const data = await resp.json();
-  return (data.values||[]).slice(1)
-    .filter(r => r[1])
-    .map(r => ({
-      id: r[0]||uid(), platform: r[1]||'', account: r[2]||'',
-      hint: r[3]||'', note: r[4]||'', category: r[5]||'其他',
-      emoji: r[6]||'🔑', createdAt: r[7]||new Date().toISOString(),
-    }));
+// Parse sheet rows — handles old 8-col (ID first), previous 6-col, and new 7-col (with 網址)
+function parseSheetRows(allRows){
+  if(!allRows || allRows.length < 2) return [];
+  const h = allRows[0];
+  const isOldId = h[0] === 'ID';   // legacy: ID,平台,帳號,暗號,備註,分類,emoji,建立時間
+  const hasUrl  = h[1] === '網址'; // current: 平台,網址,帳號,暗號,備註,分類,建立時間
+  return allRows.slice(1)
+    .filter(r => r[isOldId ? 1 : 0])
+    .map(r => {
+      if(isOldId) return {
+        id: r[0]||uid(), platform: r[1]||'', url: '', account: r[2]||'',
+        hint: r[3]||'', note: r[4]||'', category: r[5]||'其他',
+        emoji: r[6]||'🔑', createdAt: r[7]||new Date().toISOString()
+      };
+      if(hasUrl) return {
+        id: uid(), platform: r[0]||'', url: r[1]||'', account: r[2]||'',
+        hint: r[3]||'', note: r[4]||'', category: r[5]||'其他',
+        emoji: '🔑', createdAt: r[6]||new Date().toISOString()
+      };
+      // Previous 6-col format without 網址
+      return {
+        id: uid(), platform: r[0]||'', url: '', account: r[1]||'',
+        hint: r[2]||'', note: r[3]||'', category: r[4]||'其他',
+        emoji: '🔑', createdAt: r[5]||new Date().toISOString()
+      };
+    });
 }
 
-async function saveToSheets(email, data){
-  const token = await ensureToken();
+async function loadFromSheets(email, providedToken = null){
+  const token = providedToken || await ensureToken();
   let sheetId = localStorage.getItem(SHEET_ID_KEY + email);
-  if(!sheetId) sheetId = await createSpreadsheet(token);
+
+  // Helper to fetch rows from a known sheet ID
+  async function fetchRows(id){
+    const resp = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${SHEET_NAME}!A:I`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if(resp.status === 404){ localStorage.removeItem(SHEET_ID_KEY + email); return 'not_found'; }
+    if(!resp.ok) throw new Error('read:'+resp.status);
+    return (await resp.json()).values || [];
+  }
+
+  if(sheetId){
+    const rows = await fetchRows(sheetId);
+    if(rows !== 'not_found') return parseSheetRows(rows);
+    // 404 — fall through to Drive search below
+    sheetId = null;
+  }
+
+  // Drive search: maybe the file still exists with a different ID
+  sheetId = await findExistingSheet(token);
+  if(!sheetId) return null;
+  localStorage.setItem(SHEET_ID_KEY + email, sheetId);
+  const rows = await fetchRows(sheetId);
+  return rows === 'not_found' ? null : parseSheetRows(rows);
+}
+
+async function saveToSheets(email, data, providedToken = null){
+  const token = providedToken || await ensureToken();
+  const { sheetId } = await ensureSheet(token);
   const rows = [SHEET_COLS, ...data.map(e=>[
-    e.id, e.platform, e.account, e.hint||'', e.note||'',
-    e.category||'其他', e.emoji||'🔑', e.createdAt
+    e.platform, e.url||'', e.account, e.hint||'', e.note||'', e.category||'其他', e.createdAt
   ])];
   await writeSheet(sheetId, token, rows);
 }
 
-// ── BACKGROUND SYNC ──
-async function syncToSheetsBackground(){
+// ── NICKNAME ↔ SHEETS ──
+async function loadNickFromSheets(sheetId, token){
   try {
-    const token = await ensureToken().catch(()=>null);
-    if(!token) return;
-    await saveToSheets(currentUser, entries);
-    showToast('已同步至 Google Sheets', 'success');
-    document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
-  } catch(e){ showToast('同步失敗', 'error'); }
+    const resp = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SETTINGS_SHEET)}!A:B`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if(!resp.ok) return null;
+    const rows = (await resp.json()).values || [];
+    const row = rows.find(r => r[0] === 'nickname');
+    return row ? (row[1] || null) : null;
+  } catch { return null; }
 }
 
-async function syncFromSheetsBackground(){
+async function saveNickToSheets(nick){
+  const token = getTokenIfValid();
+  if(!token || !currentUser) return;
   try {
-    const token = await ensureToken().catch(()=>null);
-    if(!token) return;
-    const sheetEntries = await loadFromSheets(currentUser);
-    if(sheetEntries === null) return;
-    entries = sheetEntries;
-    saveUserData(currentUser, entries);
-    renderList();
+    const sheetId = localStorage.getItem(SHEET_ID_KEY + currentUser);
+    if(!sheetId) return;
+    await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SETTINGS_SHEET)}!A1?valueInputOption=RAW`,
+      {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: [['key','value'],['nickname', nick]], majorDimension: 'ROWS' })
+      }
+    );
+  } catch { /* silent */ }
+}
+
+// Called by onerror on avatar img — falls back to initial-letter circle
+function avatarImgError(img){
+  const el = img.parentElement;
+  el.style.background = 'var(--primary)';
+  el.innerHTML = el.dataset.fallback || '?';
+}
+
+function setAvatarEl(elId, url, fallbackChar){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.dataset.fallback = fallbackChar;
+  if(url){
+    el.style.background = 'transparent';
+    el.innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;" onerror="avatarImgError(this)">`;
+  } else {
+    el.style.background = 'var(--primary)';
+    el.innerHTML = fallbackChar;
+  }
+}
+
+function applyAvatars(user){
+  const nick = getNick();
+  const fallback = (nick || user || 'U')[0].toUpperCase();
+  const url = user ? localStorage.getItem(AVATAR_KEY + user) : null;
+  setAvatarEl('userAvatar', url, fallback);
+  setAvatarEl('profileAvatarBig', url, fallback);
+}
+
+function applyNick(nick){
+  localStorage.setItem(NICK_KEY + currentUser, nick);
+  document.getElementById('greetingName').textContent = 'Hi, ' + nick;
+  const pn = document.getElementById('profileNickname');
+  if(pn) pn.textContent = nick;
+  applyAvatars(currentUser);
+}
+
+// ── BACKGROUND SYNC ──
+// Uses only cached token — never pops an OAuth dialog for background operations.
+async function syncToSheetsBackground(){
+  const token = getTokenIfValid();
+  if(!token || !currentUser) return;
+  try {
+    await saveToSheets(currentUser, entries, token);
+    showToast('已同步至 Google Sheets', 'success');
     document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
-    showToast('資料已從雲端同步', 'success');
   } catch(e){ /* silent */ }
 }
 
-async function manualSync(){
-  showSyncOverlay(true, '正在同步資料…');
+async function syncFromSheetsBackground(){
+  const token = getTokenIfValid();
+  if(!token || !currentUser) return;
   try {
-    let token;
-    try { token = await requestToken(''); }
-    catch { token = await requestToken('select_account'); }
+    // Pass pre-validated token — never call ensureToken() or requestToken() from background path
+    const sheetEntries = await loadFromSheets(currentUser, token);
+    if(sheetEntries !== null && sheetEntries.length > 0){
+      entries = sheetEntries;
+      saveUserData(currentUser, entries);
+      renderList();
+    } else if(sheetEntries !== null && sheetEntries.length === 0 && entries.length > 0){
+      await saveToSheets(currentUser, entries, token);
+    }
+    // Pull nickname from 設定 sheet
+    const sheetId = localStorage.getItem(SHEET_ID_KEY + currentUser);
+    if(sheetId){
+      const remoteNick = await loadNickFromSheets(sheetId, token);
+      if(remoteNick){
+        const def = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+        const localNick = localStorage.getItem(NICK_KEY + currentUser) || def;
+        if(remoteNick !== localNick) applyNick(remoteNick);
+      }
+    }
+    document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
+  } catch(e){ /* silent */ }
+}
+
+async function doSync(){
+  // Use cached token first; fall back to silent refresh (prompt:'') — never show account picker
+  const token = await ensureToken();
+  console.log('[Echo] doSync: token acquired, expires in',
+    Math.round((tokenExpiry - Date.now()) / 1000), 's');
+
+  const { sheetId, isNew } = await ensureSheet(token);
+  console.log('[Echo] doSync: sheetId =', sheetId, '| isNew =', isNew);
+
+  if(isNew){
+    // Sheet was just created — push local data directly (skip ensureSheet round-trip inside saveToSheets)
+    console.log('[Echo] doSync: new sheet — uploading', entries.length, 'entries (local → Sheets)');
+    const uploadRows = [SHEET_COLS, ...entries.map(e=>[
+      e.platform, e.url||'', e.account, e.hint||'', e.note||'', e.category||'其他', e.createdAt
+    ])];
+    await writeSheet(sheetId, token, uploadRows);
+    console.log('[Echo] doSync: upload complete');
+    await saveNickToSheets(getNick());
+  } else {
+    // Existing sheet — Sheets is source of truth
     const sheetEntries = await loadFromSheets(currentUser);
+    console.log('[Echo] doSync: loaded', sheetEntries ? sheetEntries.length : 'null', 'entries from Sheets');
     if(sheetEntries !== null){
       entries = sheetEntries;
       saveUserData(currentUser, entries);
       renderList();
     }
     await saveToSheets(currentUser, entries);
+    console.log('[Echo] doSync: saved', entries.length, 'entries to Sheets');
+    const remoteNick = await loadNickFromSheets(sheetId, token);
+    if(remoteNick){
+      const def = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+      if(remoteNick !== (localStorage.getItem(NICK_KEY + currentUser) || def)) applyNick(remoteNick);
+    } else {
+      await saveNickToSheets(getNick());
+    }
+  }
+}
+
+async function manualSync(){
+  showSyncOverlay(true, '正在同步資料…');
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('同步逾時（15 秒），請確認網路並重試')), 15000)
+  );
+  try {
+    await Promise.race([doSync(), timeoutPromise]);
+    showSyncHint(false);
     showToast('同步完成', 'success');
     document.getElementById('profileMeta').textContent = '已連結 Google Sheets';
   } catch(e){
-    showToast('同步失敗，請重新登入', 'error');
+    console.error('[Echo] manualSync error:', e);
+    showToast(e.message || '同步失敗', 'error');
   } finally {
     showSyncOverlay(false);
   }
@@ -1316,6 +1951,7 @@ function renderList(){
         </div>
         <div class="entry-badge" style="background:${cat.bg};color:${cat.color}">${esc(e.category||'其他')}</div>
       </div>
+      ${e.url?`<div class="entry-url-row"><span class="mi">language</span><div class="entry-url-text">${esc(e.url)}</div></div>`:''}
       ${e.hint?`<div class="entry-hint-row"><span class="mi">visibility_off</span><div class="entry-hint-text">${esc(e.hint)}</div></div>`:''}
     </div>`;
   }).join('');
@@ -1364,6 +2000,10 @@ function openDetail(id){
       <div class="detail-block-label"><span class="mi">alternate_email</span>帳號 / EMAIL</div>
       <div class="detail-block-value">${esc(e.account)}</div>
     </div>
+    ${e.url?`<div class="detail-block">
+      <div class="detail-block-label"><span class="mi">language</span>網址</div>
+      <div class="detail-block-value"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary-dark);word-break:break-all;text-decoration:none">${esc(e.url)}</a></div>
+    </div>`:''}
     ${e.hint?`<div class="detail-hint-block">
       <div class="detail-block-label" style="color:var(--hint)"><span class="mi">visibility_off</span>暗號提示</div>
       <div class="detail-hint-value">${esc(e.hint)}</div>
@@ -1408,6 +2048,7 @@ function openEdit(id){
     document.getElementById('editTitle').textContent='編輯紀錄';
     document.getElementById('deleteBtn').style.display='';
     document.getElementById('fPlatform').value=e.platform;
+    document.getElementById('fUrl').value=e.url||'';
     document.getElementById('fAccount').value=e.account;
     document.getElementById('fHint').value=e.hint||'';
     document.getElementById('fNote').value=e.note||'';
@@ -1416,7 +2057,7 @@ function openEdit(id){
   }else{
     document.getElementById('editTitle').textContent='新增紀錄';
     document.getElementById('deleteBtn').style.display='none';
-    ['fPlatform','fAccount','fHint','fNote'].forEach(id=>document.getElementById(id).value='');
+    ['fPlatform','fUrl','fAccount','fHint','fNote'].forEach(id=>document.getElementById(id).value='');
     selectedCat='其他'; selectedEmoji='🔑';
   }
   buildEmojiGrid(); buildCatSelect(); showScreen('editScreen');
@@ -1424,15 +2065,16 @@ function openEdit(id){
 
 function saveEntry(){
   const platform=document.getElementById('fPlatform').value.trim();
+  const url=document.getElementById('fUrl').value.trim();
   const account=document.getElementById('fAccount').value.trim();
   const hint=document.getElementById('fHint').value.trim();
   const note=document.getElementById('fNote').value.trim();
   if(!platform||!account){alert('請填寫平台名稱和帳號');return;}
   if(editingId){
     const idx=entries.findIndex(e=>e.id===editingId);
-    entries[idx]={...entries[idx],platform,account,hint,note,category:selectedCat,emoji:selectedEmoji};
+    entries[idx]={...entries[idx],platform,url,account,hint,note,category:selectedCat,emoji:selectedEmoji};
   }else{
-    entries.unshift({id:uid(),platform,account,hint,note,category:selectedCat,emoji:selectedEmoji,createdAt:new Date().toISOString()});
+    entries.unshift({id:uid(),platform,url,account,hint,note,category:selectedCat,emoji:selectedEmoji,createdAt:new Date().toISOString()});
   }
   saveUserData(currentUser,entries); goBack();
   syncToSheetsBackground();
@@ -1452,27 +2094,233 @@ function deleteEntry(){
 // ── LOGIN SUCCESS ──
 function loginSuccess(user){
   currentUser=user;
+  console.log('[Echo] loginSuccess: user =', user, '| localStorage USER_KEY =', localStorage.getItem(USER_KEY));
   entries=getUserData(user);
-  const display = user.includes('@') ? user.split('@')[0] : user;
-  document.getElementById('greetingName').textContent=display;
-  document.getElementById('userAvatar').textContent=display[0].toUpperCase();
+  const defaultNick = user.includes('@') ? user.split('@')[0] : user;
+  const nick = localStorage.getItem(NICK_KEY + user) || defaultNick;
+  document.getElementById('greetingName').textContent = 'Hi, ' + nick;
+  applyAvatars(user);
   activeCatFilter='全部'; currentPage=1;
   buildCatFilter(); renderList();
   showScreen('mainScreen');
-  syncFromSheetsBackground();
+
+  if(getTokenIfValid()){
+    showSyncHint(false);
+    syncFromSheetsBackground();
+  } else {
+    // No cached token — show hint so user can tap to re-connect without any auto-popup
+    showSyncHint(true);
+  }
+}
+
+// ── INTRO ANIMATION ──
+function showWelcomeFinal(){
+  const s = (id,p) => Object.assign(document.getElementById(id).style, p);
+  const n = 'none';
+  document.querySelectorAll('.rring').forEach(r => r.classList.remove('fire'));
+  ['iSi1','iSi2','iSi3','iSi4'].forEach(id =>
+    s(id, {transition:n, opacity:'0', transform:'translate(-50%,-50%) scale(0)'}));
+  s('introDot',    {display:'none'});
+  s('introLock',   {transition:n, opacity:'1', transform:'translate(-50%, calc(-50% - 96px)) scale(1)'});
+  s('introText',   {transition:n, opacity:'1', transform:'translateX(-50%) translateY(-40px)'});
+  s('introLogin',  {transition:n, opacity:'1', transform:'translateX(-50%) translateY(0)', pointerEvents:'auto'});
+  document.getElementById('introLoginNew').style.display = '';
+  document.getElementById('introLoginReturn').style.display = 'none';
+}
+
+// Reset all animation elements to pre-animation state
+function resetWelcomeForAnimation(){
+  const s = (id,p) => Object.assign(document.getElementById(id).style, p);
+  const n = 'none';
+  document.querySelectorAll('.rring').forEach(r => r.classList.remove('fire'));
+  ['iSi1','iSi2','iSi3','iSi4'].forEach(id =>
+    s(id, {transition:n, opacity:'0', transform:'translate(-50%,-50%) scale(0)'}));
+  s('introDot',   {display:'', transition:n, opacity:'0', transform:'translate(-50%,-50%) scale(.3)'});
+  s('introLock',  {transition:n, opacity:'0', transform:'translate(-50%,-50%) scale(.4)'});
+  s('introText',  {transition:n, opacity:'0', transform:'translateX(-50%) translateY(-20px)'});
+  s('introLogin', {transition:n, opacity:'0', transform:'translateX(-50%) translateY(20px)', pointerEvents:'none'});
+  document.getElementById('introLoginNew').style.display = '';
+  document.getElementById('introLoginReturn').style.display = 'none';
+}
+
+// Show final welcome state for a returning user (no animation, different bottom content)
+function showWelcomeForReturningUser(email){
+  const s = (id,p) => Object.assign(document.getElementById(id).style, p);
+  const n = 'none';
+  document.querySelectorAll('.rring').forEach(r => r.classList.remove('fire'));
+  ['iSi1','iSi2','iSi3','iSi4'].forEach(id =>
+    s(id, {transition:n, opacity:'0', transform:'translate(-50%,-50%) scale(0)'}));
+  s('introDot',   {display:'none'});
+  s('introLock',  {transition:n, opacity:'1', transform:'translate(-50%, calc(-50% - 96px)) scale(1)'});
+  s('introText',  {transition:n, opacity:'1', transform:'translateX(-50%) translateY(-40px)'});
+  s('introLogin', {transition:n, opacity:'1', transform:'translateX(-50%) translateY(0)', pointerEvents:'none'});
+  document.getElementById('introLoginNew').style.display = 'none';
+  document.getElementById('introLoginReturn').style.display = '';
+  document.getElementById('returnUserEmail').textContent = email;
+}
+
+// Back from PIN: confirm logout, then replay animation
+function backFromPin(){
+  if(!confirm('確定要登出嗎？')) return;
+  localStorage.removeItem(USER_KEY);
+  pendingUser = null;
+  currentPin = '';
+  resetWelcomeForAnimation();
+  showScreen('welcomeScreen');
+  runIntroAnimation();
+}
+
+function runIntroAnimation(){
+  const $ = id => document.getElementById(id);
+  const T = ms => new Promise(r => setTimeout(r, ms));
+  const ease = 'cubic-bezier(.16,1,.3,1)';
+  const set = (id, props) => Object.assign($(id).style, props);
+
+  function fireRipples(rsetId, delays){
+    $(rsetId).querySelectorAll('.rring').forEach((r, i) => {
+      r.classList.remove('fire');
+      void r.offsetWidth;
+      setTimeout(() => r.classList.add('fire'), delays[i] || 0);
+    });
+  }
+
+  const iconTargets = [
+    'translate(-50%, calc(-50% - 80px))',   // top  (mail)
+    'translate(calc(-50% + 80px), -50%)',   // right (bookmark)
+    'translate(-50%, calc(-50% + 80px))',   // bottom (group)
+    'translate(calc(-50% - 80px), -50%)',   // left  (article)
+  ];
+
+  async function play(){
+    // S1 (0–0.8s): dot fades in at centre
+    set('introDot', {transition:`opacity .6s ${ease}, transform .7s ${ease}`, opacity:'1', transform:'translate(-50%,-50%) scale(1)'});
+    await T(800);
+
+    // S2 (0.8–2s): dot drops; ripples emanate from landing spot
+    set('introDot', {transition:'opacity .45s ease-in, transform .5s ease-in', opacity:'0', transform:'translate(-50%, calc(-50% + 62px)) scale(.35)'});
+    fireRipples('rset1', [200, 460, 740]);
+    await T(1200);
+
+    // S3 (2–3s): lock appears; icons spread outward
+    $('introDot').style.display = 'none';
+    set('introLock', {transition:`opacity .4s, transform .5s ${ease}`, opacity:'1', transform:'translate(-50%,-50%) scale(1)'});
+    await T(150);
+    ['iSi1','iSi2','iSi3','iSi4'].forEach((id, i) => {
+      setTimeout(() => {
+        set(id, {transition:`opacity .4s, transform .55s ${ease}`, opacity:'1', transform: iconTargets[i]});
+      }, i * 75);
+    });
+    await T(850);
+
+    // S4 (3–4s): icons converge & vanish; lock grows; second ripple
+    ['iSi1','iSi2','iSi3','iSi4'].forEach((id, i) => {
+      setTimeout(() => {
+        set(id, {transition:'opacity .3s ease-in, transform .35s ease-in', opacity:'0', transform:'translate(-50%,-50%) scale(0)'});
+      }, i * 45);
+    });
+    await T(230);
+    set('introLock', {transition:`transform .38s ${ease}`, transform:'translate(-50%,-50%) scale(1.28)'});
+    fireRipples('rset2', [80, 400]);
+    await T(770);
+
+    // S5 (4–5s): lock slides up; title + tagline fade in below
+    set('introLock', {transition:`transform .7s ${ease}`, transform:'translate(-50%, calc(-50% - 96px)) scale(1)'});
+    await T(320);
+    set('introText', {transition:`opacity .55s, transform .6s ${ease}`, opacity:'1', transform:'translateX(-50%) translateY(-40px)'});
+    await T(680);
+
+    // S6 (5–6s): login button slides in
+    set('introLogin', {transition:`opacity .6s, transform .6s ${ease}`, opacity:'1', transform:'translateX(-50%) translateY(0)', pointerEvents:'auto'});
+  }
+
+  play();
 }
 
 // ── STARTUP ──
 (function(){
   initGoogleAuth();
+  initCatScrollDrag();
+  initScrollTop();
+
+  // OAuth helper mode: this page was opened by the PWA in Safari to handle Google auth
+  if(new URLSearchParams(location.search).has('echo_oauth')){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="oauthHelper" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;z-index:999;text-align:center">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(245,166,35,0.4)">
+          <span class="mi" style="font-size:34px;color:white">lock</span>
+        </div>
+        <div style="font-family:'Fugaz One',sans-serif;font-size:28px;color:var(--ink);letter-spacing:0.05em;margin-bottom:6px">Echo</div>
+        <div style="font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink3);margin-bottom:36px">連結你的 Google 帳號</div>
+        <button id="oauthBtn" onclick="startOAuthInHelper()" style="width:100%;max-width:280px;padding:16px;background:var(--primary);border:none;border-radius:var(--radius-md);font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:white;cursor:pointer;box-shadow:0 4px 16px rgba(245,166,35,0.35)">使用 Google 帳號連結</button>
+      </div>`);
+    window.startOAuthInHelper = async function(){
+      const btn = document.getElementById('oauthBtn');
+      btn.disabled = true; btn.textContent = '授權中…';
+      let waited = 0;
+      while(!googleTokenClient && waited < 6000){ await new Promise(r=>setTimeout(r,200)); waited+=200; }
+      if(!googleTokenClient){ btn.disabled=false; btn.textContent='使用 Google 帳號連結'; showToast('初始化失敗，請重試','error'); return; }
+      try {
+        const token = await requestToken('select_account');
+        const resp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer '+token } });
+        const info = await resp.json();
+        if(!info.email) throw new Error('no email');
+        if(info.picture) localStorage.setItem(AVATAR_KEY + info.email, info.picture);
+        if(window.opener && window.opener.onOAuthResult){
+          window.opener.onOAuthResult(info.email, token, info.picture || null);
+        } else {
+          localStorage.setItem('echo_pending_oauth', JSON.stringify({ email: info.email, token, ts: Date.now() }));
+        }
+        document.getElementById('oauthHelper').innerHTML = '<div style="padding:40px"><div style="font-size:48px;margin-bottom:16px">✓</div><div style="font-family:\'Poppins\',sans-serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px">授權成功！</div><div style="font-family:\'Noto Sans TC\',sans-serif;font-size:13px;color:var(--ink3)">請返回 Echo APP</div></div>';
+        setTimeout(()=>window.close(), 3000);
+      } catch(e){
+        btn.disabled=false; btn.textContent='使用 Google 帳號連結';
+        showToast('授權失敗，請重試','error');
+      }
+    };
+    return;
+  }
+
+  // Handle return from Safari OAuth tab (fallback when window.opener is unavailable)
+  window.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState !== 'visible') return;
+    const pending = localStorage.getItem('echo_pending_oauth');
+    if(!pending) return;
+    localStorage.removeItem('echo_pending_oauth');
+    try {
+      const { email, token, ts } = JSON.parse(pending);
+      if(Date.now() - ts < 300000 && email && token){
+        accessToken = token; tokenExpiry = Date.now() + 3540 * 1000;
+        proceedToPinAfterAuth(email, token);
+      }
+    } catch {}
+  });
+
+  // iOS PWA standalone: handle OAuth redirect token in URL hash (legacy fallback)
+  if(window.location.hash.includes('access_token')){
+    handleOAuthRedirect().then(ok => {
+      if(!ok){
+        // Redirect parsing failed — fall through to normal startup
+        const savedUser = localStorage.getItem(USER_KEY);
+        if(savedUser){ showWelcomeForReturningUser(savedUser); setTimeout(()=>{ pendingUser=savedUser; document.getElementById('enterPinUserName').textContent=savedUser; buildKeypad('enterPinKeypad',enterPinPress); showScreen('enterPinScreen'); },1000); }
+        else { runIntroAnimation(); }
+      }
+    });
+    return;
+  }
+
   const savedUser = localStorage.getItem(USER_KEY);
   if(savedUser){
-    pendingUser = savedUser;
-    document.getElementById('enterPinUserName').textContent = savedUser;
-    buildKeypad('enterPinKeypad', enterPinPress);
-    showScreen('enterPinScreen');
+    showWelcomeForReturningUser(savedUser);
+    setTimeout(() => {
+      pendingUser = savedUser;
+      document.getElementById('enterPinUserName').textContent = savedUser;
+      buildKeypad('enterPinKeypad', enterPinPress);
+      showScreen('enterPinScreen');
+    }, 1000);
+  } else {
+    runIntroAnimation();
   }
-  // else: welcomeScreen is active by default
 })();
 </script>
 </body>
