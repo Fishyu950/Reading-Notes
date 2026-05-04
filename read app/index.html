@@ -499,7 +499,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   -webkit-tap-highlight-color:transparent;
   display:inline-flex;align-items:center;gap:5px;
 }
-.tag-sheet-item.sel{font-weight:700}
+.tag-sheet-item.sel{font-weight:700;border-width:1.5px}
 .tag-sheet-item:active{transform:scale(.93)}
 
 /* ─── UTIL ─── */
@@ -676,6 +676,12 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .settings-item:hover{background:var(--border)}
 .settings-item .material-icons-outlined{font-size:18px;color:var(--gold)}
 .settings-item-sync{font-size:17px;color:var(--gold);line-height:1}
+.settings-version{
+  font-size:11px;color:var(--textFaint);text-align:center;
+  padding:7px 16px 10px;border-top:1px solid var(--border);
+  line-height:1.7;letter-spacing:.3px;
+}
+.settings-version-note{display:block;font-size:10px;opacity:.75}
 </style>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 <style>.material-icons-outlined{font-size:18px;vertical-align:middle;line-height:1;user-select:none}.empty-icon .material-icons-outlined{font-size:48px}.search-icon .material-icons-outlined{font-size:20px}</style>
@@ -700,6 +706,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
             <button class="settings-item" onclick="document.getElementById('import-json-input').click();closeSettingsMenu()"><span class="material-icons-outlined">download</span> 匯入</button>
           </div>
           <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importData(this.files[0])"/>
+          <div class="settings-version">v24 · 2026.05<span class="settings-version-note">Notion 標籤需手動清理</span></div>
         </div>
         <button class="btn btn-gold" id="btn-new"><span class="material-icons-outlined">add</span> 新增</button>
       </div>
@@ -2025,6 +2032,22 @@ async function syncFromNotion() {
     });
 
     saveBooks();
+
+    // 自動合併 Notion 書目裡的標籤值進 tagGroups
+    const labelToKey = {};
+    tagGroups.forEach(g => { labelToKey[g.label] = g.key; });
+    notionBooks.forEach(nb => {
+      Object.entries(nb.types).forEach(([label, tags]) => {
+        const gk = labelToKey[label];
+        if (!gk) return;
+        const g = tagGroups.find(x => x.key === gk);
+        if (!g) return;
+        tags.forEach(t => { if (t && !g.tags.includes(t)) g.tags.push(t); });
+      });
+    });
+    saveCustomTags();
+    renderTagAccordion();
+
     renderStats(); renderFilters(); renderGrid();
     showToast('已從 Notion 同步 ' + books.length + ' 筆書目 <span class="material-icons-outlined">check</span>');
   } catch(e) {
