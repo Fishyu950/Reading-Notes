@@ -96,16 +96,6 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .btn-ghost:hover{background:var(--surface)}
 .btn-back{background:none;border:none;color:var(--gold);cursor:pointer;font-size:20px;padding:0 6px 0 0;font-family:inherit}
 
-/* ─── STATS BAR ─── */
-.stats{
-  display:flex;background:var(--card);border:1px solid var(--border);
-  border-radius:12px;overflow:hidden;margin-bottom:22px;
-}
-.stat{flex:1;text-align:center;padding:13px 8px}
-.stat+.stat{border-left:1px solid var(--border)}
-.stat-val{font-size:23px;font-weight:900;line-height:1}
-.stat-lbl{font-size:11px;color:var(--textFaint);letter-spacing:0.15em;margin-top:4px}
-
 /* ─── SEARCH ─── */
 .search-wrap{position:relative;margin-bottom:11px}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--textFaint);pointer-events:none}
@@ -117,18 +107,6 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 }
 .search-inp:focus{border-color:var(--borderMd)}
 
-/* ─── FILTER ROW ─── */
-.filter-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;align-items:center}
-.filter-label{font-size:11px;color:var(--textFaint);letter-spacing:1.5px}
-.filter-sep{width:1px;height:14px;background:var(--border);margin:0 3px}
-.fchip{
-  font-size:13px;padding:4px 10px;border-radius:20px;cursor:pointer;
-  font-family:inherit;border:1px solid var(--border);background:var(--card);
-  color:var(--textFaint);transition:all .12s;user-select:none;
-  display:inline-block;
-}
-.fchip.active{font-weight:600}
-.fchip:active{transform:scale(.9)}
 .result-count{font-size:12px;color:var(--textFaint);margin-bottom:14px;letter-spacing:.5px}
 /* ─── PAGINATION ─── */
 .pagination-bar{display:flex;align-items:center;justify-content:center;gap:14px;padding:30px 0 10px}
@@ -157,6 +135,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 .chip-remove{opacity:.5;font-weight:900;font-size:12px;cursor:pointer;margin-left:1px;line-height:1}
 .chip-remove:hover{opacity:1}
 .chip:active{transform:scale(.88)}
+.chip[data-tag-click]{cursor:pointer}
 
 /* ─── CARD GRID ─── */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:14px}
@@ -384,124 +363,6 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 
 
 
-/* ─── STATS CONFIG PANEL ─── */
-.stats-wrap{position:relative;margin-bottom:22px}
-.stats-edit-btn{
-  position:absolute;top:50%;right:10px;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;
-  font-size:15px;color:var(--textFaint);padding:4px 6px;border-radius:6px;
-  transition:all .15s;line-height:1;
-}
-.stats-edit-btn:hover{background:var(--surface);color:var(--textMid)}
-.stats-panel{
-  display:none;background:var(--card);border:1px solid var(--borderMd);
-  border-radius:14px;padding:18px 20px;margin-top:8px;
-  box-shadow:0 6px 20px rgba(40,20,0,.08);
-}
-.stats-panel.open{display:block}
-.stats-panel-title{font-size:12px;color:var(--textSoft);letter-spacing:0.15em;margin-bottom:12px}
-.stats-panel-note{font-size:12px;color:var(--textFaint);margin-bottom:14px;letter-spacing:0.06em}
-.stats-slots{display:flex;flex-direction:column;gap:8px}
-.stats-slot{display:flex;align-items:center;gap:10px}
-.stats-slot-num{
-  width:20px;height:20px;border-radius:50%;background:var(--surface);
-  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:11px;color:var(--textFaint);flex-shrink:0;
-}
-.sdd{position:relative;flex:1}
-.sdd-trigger{
-  display:flex;align-items:center;justify-content:space-between;gap:6px;
-  padding:9px 12px;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;cursor:pointer;font-size:15px;font-family:inherit;
-  color:var(--text);transition:border-color .15s;user-select:none;
-}
-.sdd-trigger:hover{border-color:var(--borderMd)}
-.sdd.open .sdd-trigger{border-color:var(--gold)}
-.sdd-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sdd-label.placeholder{color:var(--textFaint)}
-.sdd-arrow{font-size:12px;color:var(--textFaint);transition:transform .2s;flex-shrink:0;line-height:1}
-.sdd.open .sdd-arrow{transform:rotate(180deg)}
-.sdd-list{
-  display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
-  background:var(--card);border:1px solid var(--borderMd);border-radius:10px;
-  box-shadow:0 6px 20px rgba(40,20,0,.12);z-index:200;
-  overflow:hidden;max-height:220px;overflow-y:auto;
-}
-.sdd.open .sdd-list{display:block}
-.sdd-item{
-  padding:9px 12px;font-size:15px;font-family:inherit;cursor:pointer;
-  color:var(--textMid);transition:background .1s;
-}
-.sdd-item:hover{background:var(--surface)}
-.sdd-item.active{background:var(--surface);color:var(--gold);font-weight:700}
-.sdd-item.placeholder{color:var(--textFaint)}
-.stats-slot-toggle{
-  width:28px;height:28px;border-radius:8px;background:var(--surface);
-  border:1px solid var(--border);cursor:pointer;font-size:15px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:all .15s;color:var(--textFaint);
-}
-.stats-slot-toggle:hover{background:var(--border)}
-.stats-slot.disabled .sdd-trigger{opacity:.4;pointer-events:none}
-.stats-slot.disabled .stats-slot-num{opacity:.4}
-.stats-panel-actions{display:flex;gap:8px;margin-top:14px}
-.stats-apply-btn{
-  flex:1;padding:9px;background:#7F8162;color:#fff;border:none;
-  border-radius:9px;cursor:pointer;font-size:14px;font-weight:700;
-  font-family:inherit;letter-spacing:0.06em;
-}
-.stats-apply-btn:hover{background:#6a6c50}
-.stats-cancel-btn{
-  padding:9px 14px;background:var(--surface);color:var(--textMid);
-  border:1px solid var(--border);border-radius:9px;cursor:pointer;
-  font-size:14px;font-family:inherit;
-}
-
-/* ─── TAG BOTTOM SHEET (mobile) ─── */
-.tag-sheet-overlay{
-  position:fixed;inset:0;background:rgba(20,12,4,.4);
-  z-index:500;display:none;backdrop-filter:blur(4px);
-}
-.tag-sheet-overlay.open{display:block}
-.tag-sheet{
-  position:fixed;bottom:0;left:0;right:0;z-index:501;
-  background:var(--card);border-radius:20px 20px 0 0;
-  border-top:1px solid var(--borderMd);
-  padding:0 0 env(safe-area-inset-bottom,16px);
-  max-height:75vh;display:flex;flex-direction:column;
-  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0);
-}
-.tag-sheet.open{transform:translateY(0);transition:transform .3s cubic-bezier(.33,1,.68,1)}
-.tag-sheet-handle{
-  width:36px;height:4px;background:var(--border);border-radius:2px;
-  margin:12px auto 0;flex-shrink:0;
-}
-.tag-sheet-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 18px 10px;flex-shrink:0;
-  border-bottom:1px solid var(--border);
-}
-.tag-sheet-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:1px}
-.tag-sheet-close{
-  background:none;border:none;font-size:22px;color:var(--textSoft);
-  cursor:pointer;padding:0 4px;font-family:inherit;line-height:1;
-}
-.tag-sheet-body{
-  overflow-y:auto;padding:14px 18px 20px;flex:1;
-  -webkit-overflow-scrolling:touch;
-  user-select:none;-webkit-user-select:none;
-}
-.tag-sheet-tags{display:flex;flex-wrap:wrap;gap:8px}
-.tag-sheet-item{
-  font-size:15px;padding:7px 14px;border-radius:20px;cursor:pointer;
-  font-family:inherit;border:1px solid var(--border);background:var(--surface);
-  color:var(--textFaint);transition:all .12s;user-select:none;-webkit-user-select:none;
-  -webkit-tap-highlight-color:transparent;
-  display:inline-flex;align-items:center;gap:5px;
-}
-.tag-sheet-item.sel{font-weight:700;border-width:1.5px}
-.tag-sheet-item:active{transform:scale(.93)}
-
 /* ─── UTIL ─── */
 .d-flex{display:flex}
 .gap8{gap:8px}
@@ -524,9 +385,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .hdr-sub{ display: none; }
   .btn{ padding: 8px 14px; font-size: 12px; }
 
-  /* ── stats ── */
-  .stat-val{ font-size: 18px; }
-  .stat{ padding: 11px 6px; }
+  
 
   /* ── card grid: single column ── */
   .grid{ grid-template-columns: 1fr; gap: 10px; }
@@ -534,19 +393,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
   .card-body.lg{ padding: 16px 18px; }
   .card-title.lg{ font-size: 18px; }
 
-  /* ── filter row: scrollable ── */
-  .filter-row{
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 4px;
-    gap: 6px;
-  }
-  .filter-row::-webkit-scrollbar{ display: none; }
-  .filter-label{ flex-shrink: 0; }
-  .filter-sep{ flex-shrink: 0; }
-  .fchip{ flex-shrink: 0; font-size: 12px; padding: 6px 12px; }
+  
 
   /* ── modal: full screen sheet ── */
   .modal{ border-bottom: none; will-change: transform; }
@@ -636,15 +483,13 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 #toast.err{background:rgba(140,56,32,.92)}
 
 /* ─── FILTER BUTTON & SHEET ─── */
-.btn-filter{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;border:1px solid var(--border);background:var(--card);color:var(--textMid);transition:all .12s}
-.btn-filter:active{transform:scale(.96)}
-.filter-bar{margin-bottom:10px}
-.filter-badge{font-weight:700;color:var(--text)}
-.flt-section{margin-bottom:18px}
-.flt-section-label{font-size:11px;color:var(--textFaint);letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase}
-.flt-chips{display:flex;flex-wrap:wrap;gap:8px}
-.flt-clear-btn{font-size:13px;color:var(--textSoft);border:1px solid var(--border);background:none;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:20px;transition:all .12s;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.flt-clear-btn:active{background:var(--surface)}
+
+.sort-bar{margin-bottom:10px}
+.sort-sel{
+  font-size:13px;padding:6px 10px 6px 12px;border-radius:20px;cursor:pointer;
+  font-family:inherit;border:1px solid var(--border);background:var(--card);
+  color:var(--textMid);outline:none;
+}
 /* ─── MODAL DRAG HANDLE ─── */
 .modal-drag-handle{display:block;width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 6px}
 /* ─── SCROLL TO TOP ─── */
@@ -704,7 +549,7 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
             <button class="settings-item" id="btn-sync-notion" onclick="closeSettingsMenu()"><span class="material-icons-outlined">sync</span> 從 Notion 同步</button>
             <button class="settings-item" onclick="exportData();closeSettingsMenu()"><span class="material-icons-outlined">upload</span> 匯出</button>
             <button class="settings-item" onclick="document.getElementById('import-json-input').click();closeSettingsMenu()"><span class="material-icons-outlined">download</span> 匯入</button>
-            <div class="settings-version">v24 · 2026.05</div>
+            <div class="settings-version">v26 · 2026.05</div>
           </div>
           <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importData(this.files[0])"/>
         </div>
@@ -715,25 +560,17 @@ h1,h2,h3,.en-heading,.card-title-en{font-family:'Outfit','Noto Sans TC', sans-se
 
   <!-- LIST VIEW -->
   <div class="container" id="view-list">
-    <div class="stats-wrap">
-      <div class="stats" id="stats-bar"></div>
-      <button class="stats-edit-btn" id="stats-edit-btn" title="自訂統計欄"><span class="material-icons-outlined">settings</span></button>
-    </div>
-    <div class="stats-panel" id="stats-panel">
-      <div class="stats-panel-title">自訂統計欄位</div>
-      <p class="stats-panel-note">選擇 2–4 個想展示的項目</p>
-      <div class="stats-slots" id="stats-slots"></div>
-      <div class="stats-panel-actions">
-        <button class="stats-apply-btn" id="stats-apply-btn">套用</button>
-        <button class="stats-cancel-btn" id="stats-cancel-btn">取消</button>
-      </div>
-    </div>
     <div class="search-wrap">
       <span class="search-icon"><span class="material-icons-outlined">search</span></span>
       <input class="search-inp" id="search-inp" placeholder="搜尋書名、作者、攻受描述…" autocomplete="off"/>
     </div>
-    <div class="filter-bar">
-      <button class="btn-filter" id="btn-filter-sheet"><span class="material-icons-outlined">filter_list</span> 篩選<span id="filter-badge" class="filter-badge"></span></button>
+    <div class="sort-bar">
+      <select class="sort-sel" id="sort-sel">
+        <option value="new-desc">新增：新→舊</option>
+        <option value="new-asc">新增：舊→新</option>
+        <option value="stars-desc">星數：高→低</option>
+        <option value="stars-asc">星數：低→高</option>
+      </select>
     </div>
     <div class="result-count" id="result-count"></div>
     <div class="grid" id="book-grid"></div>
@@ -1001,8 +838,9 @@ let books = [
 })();
 
 /* ─── filter state ─── */
-let fltSpice='', fltLength='', fltTime='', fltTags={}, searchQ='';
+let searchQ='';
 let currentPage = 1;
+let sortOrder = 'new-desc';
 const BOOKS_PER_PAGE = 15;
 let editingId = null;
 let formSelectedTypes = [];
@@ -1041,10 +879,11 @@ function starsHTML(v, size=12) {
   return h;
 }
 
-function chipHTML(tag, size='sm', removable=false) {
+function chipHTML(tag, size='sm', removable=false, clickable=false) {
   const c = getTagColour(tag);
   const xs = size==='xs';
-  return `<span class="chip ${xs?'xs':''}" style="background:${c.bg};color:${c.text};border-color:${c.border}">
+  const tfAttr = clickable ? ` data-tag-click="${esc(tag)}"` : '';
+  return `<span class="chip ${xs?'xs':''}"${tfAttr} style="background:${c.bg};color:${c.text};border-color:${c.border}">
     <span class="chip-dot" style="background:${c.dot}"></span>${esc(tag)}${
     removable?`<span class="chip-remove" data-tag="${esc(tag)}"><span class="material-icons-outlined">close</span></span>`:''
   }</span>`;
@@ -1087,297 +926,30 @@ function esc(s) {
 }
 
 function getFiltered() {
-  return books.filter(b => {
-    if (fltSpice  && b.spice !==fltSpice)  return false;
-    if (fltLength && b.length!==fltLength) return false;
-    if (fltTime && b.time !== fltTime) return false;
-    for (const [gk,tags] of Object.entries(fltTags)) {
-      if (tags?.length && !tags.some(t=>b.types.includes(t))) return false;
-    }
+  let result = books.filter(b => {
     if (searchQ) {
-      const q=searchQ;
-      if (!b.title.includes(q)&&!b.author.includes(q)&&(b.attackType||'').includes(q)===false&&
-          !b.title.includes(q)&&!b.author.includes(q)) {
-        if (!b.title.includes(q)&&!b.author.includes(q)&&!(b.attackType||'').includes(q)) return false;
-      }
+      const q = searchQ.toLowerCase();
+      const inTitle  = b.title.toLowerCase().includes(q);
+      const inAuthor = b.author.toLowerCase().includes(q);
+      const inAtk    = (b.attackType||'').toLowerCase().includes(q);
+      const inTypes  = (b.types||[]).some(t => t.toLowerCase().includes(q));
+      const inTime   = (b.time||'').toLowerCase().includes(q);
+      const inLength = (b.length||'').toLowerCase().includes(q);
+      const inSpice  = (b.spice||'').toLowerCase().includes(q);
+      if (!inTitle && !inAuthor && !inAtk && !inTypes && !inTime && !inLength && !inSpice) return false;
     }
     return true;
   });
+  switch (sortOrder) {
+    case 'new-asc':    result = result.slice().sort((a,b) => a.id - b.id); break;
+    case 'stars-desc': result = result.slice().sort((a,b) => b.stars - a.stars); break;
+    case 'stars-asc':  result = result.slice().sort((a,b) => a.stars - b.stars); break;
+    default:           result = result.slice().sort((a,b) => b.id - a.id); break;
+  }
+  return result;
 }
 
 /* ═══════════ RENDER LIST ═══════════ */
-// ── Stats config ──
-const STAT_OPTIONS = [
-  {id:'ancient',  label:'古代',   fn:()=>books.filter(b=>b.time==='古代').length},
-  {id:'modern',   label:'現代',   fn:()=>books.filter(b=>b.time==='現代').length},
-  {id:'future',   label:'未來',   fn:()=>books.filter(b=>b.time==='未來').length},
-  {id:'fantasy',  label:'架空',   fn:()=>books.filter(b=>b.time==='架空').length},
-  {id:'other',    label:'其他',   fn:()=>books.filter(b=>!['古代','現代','未來','架空'].includes(b.time)).length},
-  {id:'starred',  label:'滿分書目', fn:()=>books.filter(b=>b.stars===10).length},
-  {id:'total',    label:'收錄書目', fn:()=>books.length},
-  {id:'monk',     label:'和尚攻', fn:()=>books.filter(b=>b.types&&b.types.includes('和尚攻')).length},
-];
-
-const STAT_COLORS = [
-  'var(--gold)',
-  GRP.genre.levels[1].dot,
-  GRP.relation.levels[1].dot,
-  GRP.roles.levels[1].dot,
-];
-
-// default 2 slots: 收錄書目 + 和尚攻
-let activeStats = ['total','monk',null,null];
-
-function getStatBySlot(id) {
-  return STAT_OPTIONS.find(o=>o.id===id);
-}
-
-function renderStats() {
-  const filled = activeStats.filter(Boolean);
-  const bar = document.getElementById('stats-bar');
-  if (!bar) return;
-  bar.innerHTML = filled.map((id,i)=>{
-    const opt = getStatBySlot(id);
-    if (!opt) return '';
-    return `<div class="stat">
-      <div class="stat-val" style="color:${STAT_COLORS[i]||'var(--gold)'}">${opt.fn()}</div>
-      <div class="stat-lbl">${opt.label}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderStatsPanel() {
-  const slots = document.getElementById('stats-slots');
-  if (!slots) return;
-  slots.innerHTML = [0,1,2,3].map(i=>{
-    const val = activeStats[i]||'';
-    const disabled = i>=2 && !activeStats[i-1];
-    const selOpt = STAT_OPTIONS.find(o=>o.id===val);
-    const lblText = selOpt ? selOpt.label : '— 不顯示 —';
-    const itemsHtml = [
-      `<div class="sdd-item placeholder" data-val="">— 不顯示 —</div>`,
-      ...STAT_OPTIONS.map(o=>`<div class="sdd-item${val===o.id?' active':''}" data-val="${o.id}">${o.label}</div>`)
-    ].join('');
-    return `<div class="stats-slot${disabled?' disabled':''}" id="stats-slot-${i}">
-      <div class="stats-slot-num">${i+1}</div>
-      <div class="sdd" id="sdd-${i}">
-        <div class="sdd-trigger" id="sdd-trigger-${i}">
-          <span class="sdd-label${val?'':' placeholder'}" id="sdd-lbl-${i}">${lblText}</span>
-          <span class="sdd-arrow"><span class="material-icons-outlined">expand_more</span></span>
-        </div>
-        <div class="sdd-list" id="sdd-list-${i}">${itemsHtml}</div>
-      </div>
-      <button class="stats-slot-toggle" data-slot="${i}" title="${val?'清除':''}">
-        ${val?'<span class="material-icons-outlined">close</span>':'　'}
-      </button>
-    </div>`;
-  }).join('');
-  [0,1,2,3].forEach(i=>{
-    const sdd    = document.getElementById(`sdd-${i}`);
-    const trigger= document.getElementById(`sdd-trigger-${i}`);
-    const list   = document.getElementById(`sdd-list-${i}`);
-    const lblEl  = document.getElementById(`sdd-lbl-${i}`);
-    if (!trigger||!list) return;
-    trigger.addEventListener('click',e=>{
-      e.stopPropagation();
-      document.querySelectorAll('.sdd.open').forEach(el=>{ if(el!==sdd) el.classList.remove('open'); });
-      sdd.classList.toggle('open');
-    });
-    list.querySelectorAll('.sdd-item').forEach(item=>{
-      item.addEventListener('click',()=>{
-        const newVal = item.dataset.val;
-        activeStats[i] = newVal||null;
-        lblEl.textContent = newVal ? (STAT_OPTIONS.find(o=>o.id===newVal)||{}).label : '— 不顯示 —';
-        lblEl.className = 'sdd-label'+(newVal?'':' placeholder');
-        list.querySelectorAll('.sdd-item').forEach(it=>it.classList.remove('active'));
-        item.classList.add('active');
-        sdd.classList.remove('open');
-        const clearBtn = document.querySelector(`#stats-slot-${i} .stats-slot-toggle`);
-        if (clearBtn) clearBtn.innerHTML = newVal?'<span class="material-icons-outlined">close</span>':'　';
-        const next = document.getElementById(`stats-slot-${i+1}`);
-        if (next) {
-          if (newVal) {
-            next.classList.remove('disabled');
-          } else {
-            next.classList.add('disabled');
-            activeStats[i+1]=null; activeStats[i+2]=null; activeStats[i+3]=null;
-          }
-        }
-      });
-    });
-    const btn = document.querySelector(`#stats-slot-${i} .stats-slot-toggle`);
-    if (btn) btn.addEventListener('click',()=>{
-      activeStats[i]=null;
-      if (i<3){ activeStats[i+1]=null; activeStats[i+2]=null; activeStats[i+3]=null; }
-      renderStatsPanel();
-    });
-  });
-}
-
-function renderFilters() {
-  const total = (fltSpice?1:0)+(fltLength?1:0)+(fltTime?1:0)+
-    Object.values(fltTags).reduce((s,a)=>s+(a?.length||0),0);
-  const badge = document.getElementById('filter-badge');
-  if (badge) { badge.textContent = total ? ` ·${total}` : ''; badge.style.display = total ? '' : 'none'; }
-  if (document.getElementById('filter-sheet')?.classList.contains('open')) renderFilterSheetBody();
-}
-
-function isMobile(){ return window.innerWidth <= 640; }
-
-function openTagSheet(gk) {
-  const g = tagGroups.find(x=>x.key===gk);
-  if (!g) return;
-  const hdr = getGroupHeader(gk);
-  document.getElementById('tag-sheet-title').textContent = g.label;
-  const sel = fltTags[gk]||[];
-  document.getElementById('tag-sheet-tags').innerHTML = g.tags.map((t,ti)=>{
-    const on = sel.includes(t);
-    const levels = GRP[gk]?.levels||GRP.genre.levels;
-    const lvl = Math.min(2,Math.floor((ti/Math.max(g.tags.length,1))*3));
-    const tc = levels[lvl];
-    return `<span class="tag-sheet-item ${on?'sel':''}" data-sgk="${esc(gk)}" data-stag="${esc(t)}"
-      style="${on?`background:${tc.bg};color:${tc.text};border-color:${tc.border}`:''}">
-      ${on?`<span style="width:5px;height:5px;border-radius:50%;background:${tc.dot};flex-shrink:0"></span>`:''}
-      ${esc(t)}</span>`;
-  }).join('');
-  document.querySelectorAll('[data-sgk]').forEach(el=>{
-    el.addEventListener('click',()=>{
-      const sgk=el.dataset.sgk, tag=el.dataset.stag;
-      const cur=fltTags[sgk]||[];
-      fltTags[sgk]=cur.includes(tag)?cur.filter(x=>x!==tag):[...cur,tag];
-      currentPage=1; renderFilters(); renderGrid();
-      openTagSheet(sgk); // re-render sheet with updated state
-    });
-  });
-  document.getElementById('tag-sheet-overlay').classList.add('open');
-  document.getElementById('tag-sheet').classList.add('open');
-}
-
-function closeTagSheet() {
-  document.getElementById('tag-sheet-overlay').classList.remove('open');
-  document.getElementById('tag-sheet').classList.remove('open');
-}
-
-function openFilterSheet() {
-  if (!openFilterSheet._ready) {
-    const ov = document.getElementById('filter-sheet-overlay');
-    const cl = document.getElementById('filter-sheet-close');
-    const ca = document.getElementById('flt-clear-all');
-    const sh = document.getElementById('filter-sheet');
-    if (ov) ov.addEventListener('click', closeFilterSheet);
-    if (cl) cl.addEventListener('click', closeFilterSheet);
-    if (ca) ca.addEventListener('click', () => {
-      fltSpice=''; fltLength=''; fltTime=''; fltTags={}; currentPage=1;
-      renderFilters(); renderGrid(); renderFilterSheetBody();
-    });
-    if (sh) {
-      let _sy = 0, _atTop = true;
-      const shBody = document.getElementById('filter-sheet-body');
-      sh.addEventListener('touchstart', e => {
-        _sy = e.touches[0].clientY;
-        _atTop = !shBody || shBody.scrollTop === 0;
-        sh.style.transition = 'none';
-      }, {passive:true});
-      sh.addEventListener('touchmove', e => {
-        const dy = e.touches[0].clientY - _sy;
-        if (dy > 0 && _atTop) {
-          e.preventDefault();
-          sh.style.transform = `translateY(${dy}px)`;
-        }
-      }, {passive:false});
-      sh.addEventListener('touchend', e => {
-        const dy = e.changedTouches[0].clientY - _sy;
-        sh.style.transition = '';
-        if (dy > 80 && _atTop) { sh.style.transform = ''; closeFilterSheet(); }
-        else sh.style.transform = '';
-      });
-    }
-    openFilterSheet._ready = true;
-  }
-  renderFilterSheetBody();
-  document.getElementById('filter-sheet-overlay').classList.add('open');
-  document.getElementById('filter-sheet').classList.add('open');
-  history.pushState({filterSheet:true}, '');
-  _filterHistoryPushed = true;
-}
-
-function closeFilterSheet() {
-  document.getElementById('filter-sheet-overlay')?.classList.remove('open');
-  document.getElementById('filter-sheet')?.classList.remove('open');
-  if (_filterHistoryPushed) {
-    _filterHistoryPushed = false;
-    history.back();
-  }
-}
-
-function renderFilterSheetBody() {
-  const body = document.getElementById('filter-sheet-body');
-  if (!body) return;
-  const TC = {bg:'#76614F',text:'#fff',border:'#76614F'};
-  let h = '';
-  h += `<div class="flt-section"><div class="flt-section-label">肉度</div><div class="flt-chips">`;
-  for (const [s,sc] of Object.entries(SPICE_MAP)) {
-    const on = fltSpice===s;
-    h += `<span class="tag-sheet-item${on?' sel':''}" data-ftype="spice" data-fval="${esc(s)}"
-      ${on?`style="background:${sc.bg};color:${sc.text};border-color:${sc.border}"`:''}>${esc(s)}</span>`;
-  }
-  h += `</div></div>`;
-  h += `<div class="flt-section"><div class="flt-section-label">篇幅</div><div class="flt-chips">`;
-  for (const [l,lc] of Object.entries(LEN_MAP)) {
-    const on = fltLength===l;
-    h += `<span class="tag-sheet-item${on?' sel':''}" data-ftype="length" data-fval="${esc(l)}"
-      ${on?`style="background:${lc.bg};color:${lc.text};border-color:${lc.border}"`:''}>${esc(l)}</span>`;
-  }
-  h += `</div></div>`;
-  h += `<div class="flt-section"><div class="flt-section-label">時代</div><div class="flt-chips">`;
-  const allTimes = [...new Set(books.map(b => b.time).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh'));
-  allTimes.forEach(t => {
-    const on = fltTime===t;
-    h += `<span class="tag-sheet-item${on?' sel':''}" data-ftype="time" data-fval="${esc(t)}"
-      ${on?`style="background:${TC.bg};color:${TC.text};border-color:${TC.border}"`:''}>${esc(t)}</span>`;
-  });
-  h += `</div></div>`;
-  for (const g of tagGroups) {
-    const levels = GRP[g.key]?.levels||GRP.genre.levels;
-    const sel = fltTags[g.key]||[];
-    h += `<div class="flt-section"><div class="flt-section-label">${esc(g.label)}</div><div class="flt-chips">`;
-    g.tags.forEach((t,ti) => {
-      const on = sel.includes(t);
-      const lvl = Math.min(2, Math.floor((ti/Math.max(g.tags.length,1))*3));
-      const tc = levels[lvl];
-      h += `<span class="tag-sheet-item${on?' sel':''}" data-fgroup="${g.key}" data-ftag="${esc(t)}"
-        ${on?`style="background:${tc.bg};color:${tc.text};border-color:${tc.border}"`:''}>${esc(t)}</span>`;
-    });
-    h += `</div></div>`;
-  }
-  body.innerHTML = h;
-  bindFilterSheetEvents();
-}
-
-function bindFilterSheetEvents() {
-  const body = document.getElementById('filter-sheet-body');
-  if (!body) return;
-  body.querySelectorAll('[data-ftype]').forEach(el => {
-    el.addEventListener('click', () => {
-      const t=el.dataset.ftype, v=el.dataset.fval;
-      if (t==='spice')  fltSpice  = fltSpice===v  ? '' : v;
-      if (t==='length') fltLength = fltLength===v ? '' : v;
-      if (t==='time')   fltTime   = fltTime===v   ? '' : v;
-      currentPage = 1; renderFilters(); renderGrid(); renderFilterSheetBody();
-    });
-  });
-  body.querySelectorAll('[data-fgroup]').forEach(el => {
-    el.addEventListener('click', () => {
-      const gk=el.dataset.fgroup, tag=el.dataset.ftag;
-      if (!tag) return;
-      const cur = fltTags[gk]||[];
-      fltTags[gk] = cur.includes(tag) ? cur.filter(x=>x!==tag) : [...cur,tag];
-      currentPage = 1; renderFilters(); renderGrid(); renderFilterSheetBody();
-    });
-  });
-}
-
-function bindFilterEvents() { /* no-op – handled in bindFilterSheetEvents */ }
 
 function renderGrid() {
   const filtered = getFiltered();
@@ -1446,7 +1018,7 @@ function renderBookCardHTML(b, featured=false) {
         ${featured&&b.synopsis?`<div style="margin:4px 0 10px">${textBlockHTML(b.synopsis.split('\n')[0],'var(--borderMd)')}</div>`:''}
         ${!featured&&b.synopsis?`<div class="card-synopsis">${esc(b.synopsis.split('\n')[0])}</div>`:''}
         ${botShow.length?`<div class="card-tags">
-          ${botShow.map(t=>chipHTML(t,'xs')).join('')}
+          ${botShow.map(t=>chipHTML(t,'xs',false,true)).join('')}
           ${botExtra?`<span class="card-more">+${botExtra}</span>`:''}
         </div>`:''}
       </div>
@@ -1458,7 +1030,6 @@ function renderBookCardHTML(b, featured=false) {
 let _bodyScrollY = 0;
 let _modalHistoryPushed = false;
 let _formHistoryPushed = false;
-let _filterHistoryPushed = false;
 let _formFromModal = false;
 let _savedModalBookId = null;
 
@@ -1467,6 +1038,17 @@ function openModal(id) {
   if (!b) return;
   currentModalBookId = id;
   document.getElementById('modal-content').innerHTML = renderDetailHTML(b);
+  document.querySelectorAll('#modal-content [data-tag-click]').forEach(chip => {
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      const tag = chip.dataset.tagClick;
+      closeModal();
+      searchQ = tag;
+      document.getElementById('search-inp').value = tag;
+      currentPage = 1;
+      renderGrid();
+    });
+  });
   document.getElementById('modal-box').style.transform = '';
   document.getElementById('modal-overlay').classList.add('open');
   _bodyScrollY = window.scrollY;
@@ -1477,6 +1059,31 @@ function openModal(id) {
   document.querySelector('.hdr').style.display = 'none';
   history.pushState({modal:true}, '');
   _modalHistoryPushed = true;
+  if (b.notionId && b.synopsis === '' && b.review === '' && b.quote === '') {
+    fetch(WORKER + '/' + b.notionId + '/body')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) return;
+        books = books.map(x => x.id === id ? {...x, synopsis: data.synopsis, review: data.review, quote: data.quote} : x);
+        saveBooks();
+        const updated = books.find(x => x.id === id);
+        if (updated && currentModalBookId === id && document.getElementById('modal-overlay').classList.contains('open')) {
+          document.getElementById('modal-content').innerHTML = renderDetailHTML(updated);
+          document.querySelectorAll('#modal-content [data-tag-click]').forEach(chip => {
+            chip.addEventListener('click', e => {
+              e.stopPropagation();
+              const tag = chip.dataset.tagClick;
+              closeModal();
+              searchQ = tag;
+              document.getElementById('search-inp').value = tag;
+              currentPage = 1;
+              renderGrid();
+            });
+          });
+        }
+      })
+      .catch(() => {});
+  }
 }
 function _openModalVisual(id) {
   const b = books.find(x=>x.id===id);
@@ -1509,13 +1116,6 @@ function closeModal() {
   }
 }
 window.addEventListener('popstate', () => {
-  const isFilterSheetOpen = document.getElementById('filter-sheet')?.classList.contains('open');
-  if (isFilterSheetOpen) {
-    _filterHistoryPushed = false;
-    document.getElementById('filter-sheet-overlay')?.classList.remove('open');
-    document.getElementById('filter-sheet')?.classList.remove('open');
-    return;
-  }
   const formView = document.getElementById('view-form');
   const overlay  = document.getElementById('modal-overlay');
   const isFormOpen  = !formView.classList.contains('hide');
@@ -1561,7 +1161,7 @@ function renderDetailHTML(b) {
         ${groupedTags.map(g=>`
           <div class="tag-group-row">
             <span class="tg-label" style="color:${(GRP[g.key]?.levels||GRP.genre.levels)[1].dot}">${esc(g.label)}</span>
-            ${g.has.map(t=>chipHTML(t,'sm')).join('')}
+            ${g.has.map(t=>chipHTML(t,'sm',false,['genre','relation','angst'].includes(g.key))).join('')}
           </div>`).join('')}
       </div>
       ${dividerHTML('大 綱 文 案','var(--borderMd)')}
@@ -2048,7 +1648,7 @@ async function syncFromNotion() {
     saveCustomTags();
     renderTagAccordion();
 
-    renderStats(); renderFilters(); renderGrid();
+    renderGrid();
     showToast('已從 Notion 同步 ' + books.length + ' 筆書目 <span class="material-icons-outlined">check</span>');
   } catch(e) {
     showToast('從 Notion 讀取失敗：' + e.message, false);
@@ -2168,7 +1768,7 @@ function deleteBook(id) {
   books = books.filter(b => b.id !== id);
   saveBooks();
   closeModal();
-  renderStats(); renderGrid(); renderFilters();
+  renderGrid();
   syncDelete(notionId);
 }
 
@@ -2202,7 +1802,7 @@ function handleSave() {
   saveBooks();
   setSaveState('ok');
   setTimeout(() => {
-    renderStats(); renderGrid(); renderFilters();
+    renderGrid();
     if (_formHistoryPushed) {
       _formFromModal = false;
       history.back();
@@ -2268,6 +1868,12 @@ document.getElementById('search-inp').addEventListener('input',e=>{
   searchQ=e.target.value; currentPage=1; renderGrid();
 });
 
+document.getElementById('sort-sel').addEventListener('change', e => {
+  sortOrder = e.target.value; currentPage = 1; renderGrid();
+});
+
+
+
 document.getElementById('modal-btn-close').addEventListener('click',()=>{
   closeModal();
 });
@@ -2330,31 +1936,8 @@ document.addEventListener('click',()=>{
 function toggleSettingsMenu(e){e.stopPropagation();document.getElementById('settings-dropdown').classList.toggle('open');}
 function closeSettingsMenu(){document.getElementById('settings-dropdown').classList.remove('open');}
 
-// stats panel events
-document.getElementById('stats-edit-btn').addEventListener('click',(e)=>{
-  e.stopPropagation();
-  renderStatsPanel();
-  document.getElementById('stats-panel').classList.toggle('open');
-});
-document.getElementById('stats-apply-btn').addEventListener('click',()=>{
-  // validate: at least 2 filled
-  const filled = activeStats.filter(Boolean);
-  if (filled.length < 2) {
-    alert('請至少選擇 2 個統計項目');
-    return;
-  }
-  renderStats();
-  document.getElementById('stats-panel').classList.remove('open');
-});
-document.getElementById('stats-cancel-btn').addEventListener('click',()=>{
-  document.getElementById('stats-panel').classList.remove('open');
-});
-
-document.getElementById('btn-filter-sheet').addEventListener('click', openFilterSheet);
 
 // initial render
-renderStats();
-renderFilters();
 renderGrid();
 updateStarsPreview();
 renderTagAccordion();
@@ -2363,31 +1946,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/Reading-Notes/sw.js');
 }
 </script>
-<!-- FILTER BOTTOM SHEET -->
-<div class="tag-sheet-overlay" id="filter-sheet-overlay"></div>
-<div class="tag-sheet" id="filter-sheet">
-  <div class="tag-sheet-handle"></div>
-  <div class="tag-sheet-head">
-    <span class="tag-sheet-title">篩選條件</span>
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="flt-clear-btn" id="flt-clear-all">清除全部</button>
-      <button class="tag-sheet-close" id="filter-sheet-close"><span class="material-icons-outlined">close</span></button>
-    </div>
-  </div>
-  <div class="tag-sheet-body" id="filter-sheet-body"></div>
-</div>
-<!-- TAG BOTTOM SHEET -->
-<div class="tag-sheet-overlay" id="tag-sheet-overlay"></div>
-<div class="tag-sheet" id="tag-sheet">
-  <div class="tag-sheet-handle"></div>
-  <div class="tag-sheet-head">
-    <span class="tag-sheet-title" id="tag-sheet-title">標籤篩選</span>
-    <button class="tag-sheet-close" id="tag-sheet-close"><span class="material-icons-outlined">close</span></button>
-  </div>
-  <div class="tag-sheet-body">
-    <div class="tag-sheet-tags" id="tag-sheet-tags"></div>
-  </div>
-</div>
 
 <div id="toast"></div>
 </body>
