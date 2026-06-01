@@ -4,8 +4,6 @@ const PRECACHE_URLS = [
   '/Reading-Notes/',
   '/Reading-Notes/index.html',
   '/Reading-Notes/read%20app%20icon.svg',
-  '/Reading-Notes/read%20app%20icon1.png',
-  '/Reading-Notes/read%20app%20icon_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201.png',
 ];
 
 self.addEventListener('install', event => {
